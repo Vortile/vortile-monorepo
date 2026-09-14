@@ -58,16 +58,16 @@ export const AppSidebar = ({
           <SidebarMenuItem>
             <Link
               href="/"
-              className="flex items-center gap-3 p-2 rounded-xl hover:bg-stone-100 transition-all"
+              className="flex items-center gap-3 p-2 rounded-xl hover:bg-stone-800/60 transition-all"
             >
               <div className="flex size-9 items-center justify-center rounded-xl bg-[#0066FF] text-white font-bold shadow-md shadow-[#0066FF]/25 shrink-0">
                 <IconFlame className="size-5" />
               </div>
               <div className="flex flex-col text-left leading-tight min-w-0">
-                <span className="text-sm font-bold text-stone-900 tracking-tight truncate">
+                <span className="text-sm font-bold text-white tracking-tight truncate">
                   Vortile Delivery
                 </span>
-                <span className="text-[11px] font-medium text-stone-500 truncate">
+                <span className="text-[11px] font-medium text-stone-400 truncate">
                   {isAdmin ? "Modo Administrador" : "Modo Operador"}
                 </span>
               </div>

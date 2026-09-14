@@ -21,11 +21,11 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = async ({ children }: Readonly<{ children: ReactNode }>) => (
-  <html lang="en" className={cn("font-sans", geist.variable)}>
-    <body>
+  <html lang="pt-BR" className={cn("font-sans dark", geist.variable)}>
+    <body className="bg-[#0B0C0E] text-[#EDEDED] antialiased selection:bg-[#0066FF] selection:text-white">
       <Providers>
         {children}
-        <Toaster />
+        <Toaster theme="dark" />
       </Providers>
     </body>
   </html>

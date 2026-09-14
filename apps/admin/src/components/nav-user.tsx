@@ -60,7 +60,7 @@ export const NavUser = () => {
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
-              <span className="truncate font-bold text-xs text-stone-900">
+              <span className="truncate font-bold text-xs text-white">
                 {currentUser.name}
               </span>
               <span className="text-stone-400 truncate text-[10px]">
@@ -70,7 +70,7 @@ export const NavUser = () => {
             <IconDotsVertical className="ml-auto size-4 text-stone-400" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-64 rounded-2xl p-2 shadow-xl border border-stone-200"
+            className="w-64 rounded-2xl p-2 shadow-xl border border-stone-800 bg-[#14161F] text-stone-200"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={6}

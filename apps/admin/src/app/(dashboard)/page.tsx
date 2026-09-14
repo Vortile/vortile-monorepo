@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { playOrderChime } from "@/lib/audio";
 import { ThermalReceiptModal } from "@/components/kitchen/thermal-receipt-modal";
 import { KitchenCopilotModal } from "@/components/kitchen/kitchen-copilot-modal";
+import { Kbd } from "@/components/ui/kbd";
+import { useKeyboardShortcuts } from "@/lib/use-keyboard-shortcuts";
 
 const formatBRL = (val: number | undefined | null) => {
   if (val == null || isNaN(val)) return "R$ 0,00";
@@ -64,39 +66,8 @@ const LiveOrdersDashboard = () => {
   const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
   const [mobileColumn, setMobileColumn] = useState<"pending" | "preparing" | "ready">("pending");
   const [autoStartAudio, setAutoStartAudio] = useState(false);
-  const lastSpacePressRef = useRef<number>(0);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
-
-  // Global hotkey: 2 quick Space presses triggers Copilot & starts microphone audio
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      const isInput =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable;
-      if (isInput) return;
-
-      if (e.code === "Space") {
-        const now = Date.now();
-        if (now - lastSpacePressRef.current <= 350) {
-          e.preventDefault();
-          setAutoStartAudio(true);
-          setCopilotOpen(true);
-          lastSpacePressRef.current = 0;
-        } else {
-          lastSpacePressRef.current = now;
-        }
-      } else if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setAutoStartAudio(false);
-        setCopilotOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -135,32 +106,35 @@ const LiveOrdersDashboard = () => {
     return () => clearInterval(interval);
   }, [fetchOrders]);
 
-  const updateOrderStatus = async (
-    orderId: string,
-    newStatus: Order["status"],
-    driverData?: { driverName?: string; driverPhone?: string; estimatedMinutes?: number }
-  ) => {
-    try {
-      const res = await fetch("/api/orders", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, status: newStatus, ...driverData }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (newStatus === "out_for_delivery" && driverData?.driverName) {
-          toast.success(`🛵 Pedido despachado com ${driverData.driverName}! Notificação WhatsApp registrada.`);
+  const updateOrderStatus = useCallback(
+    async (
+      orderId: string,
+      newStatus: Order["status"],
+      driverData?: { driverName?: string; driverPhone?: string; estimatedMinutes?: number }
+    ) => {
+      try {
+        const res = await fetch("/api/orders", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, status: newStatus, ...driverData }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (newStatus === "out_for_delivery" && driverData?.driverName) {
+            toast.success(`🛵 Pedido despachado com ${driverData.driverName}! Notificação WhatsApp registrada.`);
+          } else {
+            toast.success(`Pedido atualizado para: ${getStatusTitle(newStatus)}`);
+          }
+          fetchOrders();
         } else {
-          toast.success(`Pedido atualizado para: ${getStatusTitle(newStatus)}`);
+          toast.error("Erro ao atualizar status");
         }
-        fetchOrders();
-      } else {
-        toast.error("Erro ao atualizar status");
+      } catch {
+        toast.error("Erro de conexão");
       }
-    } catch {
-      toast.error("Erro de conexão");
-    }
-  };
+    },
+    [fetchOrders]
+  );
 
   const getStatusTitle = (status: Order["status"]) => {
     switch (status) {
@@ -189,36 +163,106 @@ const LiveOrdersDashboard = () => {
     .filter((o) => o.status !== "cancelled")
     .reduce((acc, o) => acc + o.total, 0);
 
+  // Trigger.dev Keyboard Engine: Enter always advances the primary active task
+  const advanceTopOrder = useCallback(() => {
+    if (dispatchOrder) return;
+
+    if (pendingOrders.length > 0) {
+      const top = pendingOrders[0];
+      toast.info(`Avançando Pedido #${top.orderNumber} para preparo (Enter ↵)`);
+      updateOrderStatus(top.id, "preparing");
+      return;
+    }
+    if (preparingOrders.length > 0) {
+      const top = preparingOrders[0];
+      toast.info(`Marcando Pedido #${top.orderNumber} como pronto (Enter ↵)`);
+      updateOrderStatus(top.id, "ready");
+      return;
+    }
+    if (readyOrders.length > 0) {
+      const top = readyOrders[0];
+      toast.info(`Concluindo Pedido #${top.orderNumber} (Enter ↵)`);
+      updateOrderStatus(top.id, "delivered");
+      return;
+    }
+  }, [dispatchOrder, pendingOrders, preparingOrders, readyOrders, updateOrderStatus]);
+
+  useKeyboardShortcuts({
+    onEnter: advanceTopOrder,
+    onRefresh: () => {
+      toast.info("Recarregando esteira de pedidos... (R)");
+      fetchOrders();
+    },
+    onPrint: () => {
+      const target = receiptOrder || pendingOrders[0] || preparingOrders[0] || readyOrders[0];
+      if (target) {
+        toast.info(`Abrindo comanda #${target.orderNumber} para impressão (P)`);
+        setReceiptOrder(target);
+      }
+    },
+    onDoubleSpace: () => {
+      setAutoStartAudio(true);
+      setCopilotOpen(true);
+    },
+    onEscape: () => {
+      setCopilotOpen(false);
+      setReceiptOrder(null);
+      setDispatchOrder(null);
+    },
+    onDigit1: () => {
+      setMobileColumn("pending");
+      toast.info("Visualizando: Novos Pedidos (1)");
+    },
+    onDigit2: () => {
+      setMobileColumn("preparing");
+      toast.info("Visualizando: Em Preparo (2)");
+    },
+    onDigit3: () => {
+      setMobileColumn("ready");
+      toast.info("Visualizando: Prontos (3)");
+    },
+    onToggleSound: () => {
+      const next = !soundEnabled;
+      setSoundEnabled(next);
+      if (next) {
+        playOrderChime({ type: "ding_dong" });
+        toast.success("Alerta sonoro ativado (S)");
+      } else {
+        toast.info("Alerta sonoro silenciado (S)");
+      }
+    },
+  });
+
   return (
     <div className="flex-1 p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto w-full">
-      {/* Top Header — Minimalist & Focused */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
+      {/* Top Header — Trigger.dev Dark Operational Aesthetic */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#1F232B]">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-stone-900">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
               Esteira de Pedidos
             </h1>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-500/25">
               <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Ao vivo
+              Ambiente: Produção ao Vivo
             </span>
           </div>
 
-          {/* Minimalist Summary Bar (Linear-style) */}
-          <div className="flex items-center gap-3 text-xs text-stone-500 mt-1.5 flex-wrap">
-            <span className="font-semibold text-stone-800">
-              <strong className="text-stone-900 font-bold">{orders.length}</strong> pedidos hoje
+          {/* Minimalist Summary Bar (Trigger.dev / Linear-style) */}
+          <div className="flex items-center gap-3 text-xs text-stone-400 mt-1.5 flex-wrap font-mono">
+            <span className="text-stone-300">
+              <strong className="text-white font-bold font-mono">{orders.length}</strong> pedidos hoje
             </span>
-            <span className="text-stone-300">•</span>
-            <span className="font-semibold text-stone-800">
-              <strong className="text-stone-900 font-bold">{formatBRL(totalRevenue)}</strong> faturados
+            <span className="text-stone-700">•</span>
+            <span className="text-stone-300">
+              <strong className="text-white font-bold font-mono">{formatBRL(totalRevenue)}</strong> faturados
             </span>
-            <span className="text-stone-300">•</span>
-            <span className="text-amber-700 font-bold">
+            <span className="text-stone-700">•</span>
+            <span className="text-amber-400 font-bold">
               {pendingOrders.length} novos aguardando
             </span>
-            <span className="text-stone-300">•</span>
-            <span className="text-emerald-700 font-bold">
+            <span className="text-stone-700">•</span>
+            <span className="text-emerald-400 font-bold">
               {readyOrders.length} prontos
             </span>
           </div>
@@ -227,14 +271,27 @@ const LiveOrdersDashboard = () => {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => setCopilotOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-stone-900 hover:bg-stone-800 text-white shadow-sm shadow-stone-900/20 transition-all active:scale-95"
+            onClick={() => {
+              setAutoStartAudio(true);
+              setCopilotOpen(true);
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052DD] text-white shadow-sm shadow-[#0066FF]/20 transition-all active:scale-95"
           >
-            <IconSparkles className="size-3.5 text-orange-400" />
+            <IconSparkles className="size-3.5 text-sky-200" />
             <span>Copilot de Cozinha</span>
-            <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.5 rounded font-mono border border-stone-700 hidden sm:inline">
-              2x Espaço
-            </span>
+            <Kbd shortcut="space" variant="primary" />
+          </button>
+
+          <button
+            type="button"
+            onClick={fetchOrders}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-800 bg-[#12141A] hover:bg-stone-800 text-stone-300 hover:text-white transition-all text-xs font-semibold"
+            title="Recarregar Pedidos (R)"
+            aria-label="Atualizar lista de pedidos manualmente"
+          >
+            <IconRefresh className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+            <span className="hidden md:inline">Recarregar</span>
+            <Kbd shortcut="refresh" variant="secondary" />
           </button>
 
           <button
@@ -244,107 +301,92 @@ const LiveOrdersDashboard = () => {
               setSoundEnabled(next);
               if (next) {
                 playOrderChime({ type: "ding_dong" });
-                toast.success("Alerta sonoro ativado");
+                toast.success("Alerta sonoro ativado (S)");
+              } else {
+                toast.info("Alerta sonoro desativado (S)");
               }
             }}
-            className={`p-2 rounded-xl border transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border transition-all text-xs ${
               soundEnabled
-                ? "bg-stone-100 text-stone-800 border-stone-300"
-                : "bg-white text-stone-400 border-stone-200 hover:bg-stone-50"
+                ? "bg-[#12141A] text-stone-200 border-stone-800"
+                : "bg-black/40 text-stone-600 border-stone-900"
             }`}
-            title={soundEnabled ? "Alerta Sonoro Ativo" : "Som Desativado"}
-            aria-label={soundEnabled ? "Desativar alerta sonoro de novos pedidos" : "Ativar alerta sonoro de novos pedidos"}
+            title={soundEnabled ? "Alerta Sonoro Ativo (S)" : "Som Desativado (S)"}
+            aria-label={soundEnabled ? "Desativar alerta sonoro" : "Ativar alerta sonoro"}
           >
-            {soundEnabled ? <IconVolume className="size-4" /> : <IconVolumeOff className="size-4" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={fetchOrders}
-            className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 transition-all"
-            title="Atualizar Pedidos"
-            aria-label="Atualizar lista de pedidos manualmente"
-          >
-            <IconRefresh className={`size-4 ${loading ? "animate-spin" : ""}`} />
+            {soundEnabled ? <IconVolume className="size-3.5 text-emerald-400" /> : <IconVolumeOff className="size-3.5" />}
+            <Kbd variant="secondary">S</Kbd>
           </button>
         </div>
       </div>
 
-      {/* Mobile Column Tabs */}
-      <div className="flex lg:hidden items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-stone-200 shadow-xs">
+      {/* Mobile Column Tabs (With Trigger.dev Shortcut Numbers) */}
+      <div className="flex lg:hidden items-center gap-1.5 bg-[#12141A] p-1.5 rounded-2xl border border-stone-800 shadow-xs">
         <button
           type="button"
           onClick={() => setMobileColumn("pending")}
-          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             mobileColumn === "pending"
-              ? "bg-amber-500 text-white shadow-xs"
-              : "text-stone-600 hover:bg-stone-100"
+              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+              : "text-stone-400 hover:bg-stone-800"
           }`}
         >
           <span>Novos</span>
-          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-            mobileColumn === "pending" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
-          }`}>
-            {pendingOrders.length}
-          </span>
+          <Kbd variant="subtle">1</Kbd>
+          <span className="text-[10px] font-mono font-bold ml-0.5">({pendingOrders.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setMobileColumn("preparing")}
-          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             mobileColumn === "preparing"
-              ? "bg-orange-600 text-white shadow-xs"
-              : "text-stone-600 hover:bg-stone-100"
+              ? "bg-sky-500/20 text-sky-300 border border-sky-500/30"
+              : "text-stone-400 hover:bg-stone-800"
           }`}
         >
-          <span>Em Preparo</span>
-          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-            mobileColumn === "preparing" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
-          }`}>
-            {preparingOrders.length}
-          </span>
+          <span>Preparo</span>
+          <Kbd variant="subtle">2</Kbd>
+          <span className="text-[10px] font-mono font-bold ml-0.5">({preparingOrders.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setMobileColumn("ready")}
-          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             mobileColumn === "ready"
-              ? "bg-emerald-600 text-white shadow-xs"
-              : "text-stone-600 hover:bg-stone-100"
+              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+              : "text-stone-400 hover:bg-stone-800"
           }`}
         >
-          <span>Prontos</span>
-          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-            mobileColumn === "ready" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
-          }`}>
-            {readyOrders.length}
-          </span>
+          <span>Pronto</span>
+          <Kbd variant="subtle">3</Kbd>
+          <span className="text-[10px] font-mono font-bold ml-0.5">({readyOrders.length})</span>
         </button>
       </div>
 
-      {/* Esteira de Pedidos Columns */}
+      {/* Esteira de Pedidos Columns — Trigger.dev Dark Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Column 1: Novos Pedidos */}
         <div
-          className={`flex-col rounded-2xl bg-amber-50/50 border border-amber-200/80 p-4 space-y-3 min-h-[450px] ${
+          className={`flex-col rounded-2xl bg-[#0F1116] border border-amber-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "pending" ? "flex" : "hidden lg:flex"
           }`}
         >
-          <div className="flex items-center justify-between pb-2 border-b border-amber-200/60">
+          <div className="flex items-center justify-between pb-2.5 border-b border-stone-800/80">
             <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-amber-500 animate-pulse" />
-              <h2 className="font-bold text-amber-900 text-sm">Novos Pedidos</h2>
+              <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
+              <h2 className="font-bold text-amber-300 text-sm">Novos Pedidos</h2>
+              <Kbd variant="subtle">1</Kbd>
             </div>
-            <span className="text-xs font-extrabold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-mono font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
               {pendingOrders.length}
             </span>
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto">
             {pendingOrders.length === 0 ? (
-              <div className="text-center py-12 text-stone-400 text-xs">
+              <div className="text-center py-12 text-stone-500 text-xs font-mono">
                 Nenhum pedido novo no momento.
               </div>
             ) : (
@@ -364,23 +406,24 @@ const LiveOrdersDashboard = () => {
 
         {/* Column 2: Em Preparo */}
         <div
-          className={`flex-col rounded-2xl bg-orange-50/40 border border-orange-200/80 p-4 space-y-3 min-h-[450px] ${
+          className={`flex-col rounded-2xl bg-[#0F1116] border border-sky-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "preparing" ? "flex" : "hidden lg:flex"
           }`}
         >
-          <div className="flex items-center justify-between pb-2 border-b border-orange-200/60">
+          <div className="flex items-center justify-between pb-2.5 border-b border-stone-800/80">
             <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-orange-500 animate-pulse" />
-              <h2 className="font-bold text-orange-950 text-sm">Em Preparo</h2>
+              <span className="size-2 rounded-full bg-sky-500 animate-pulse" />
+              <h2 className="font-bold text-sky-300 text-sm">Em Preparo</h2>
+              <Kbd variant="subtle">2</Kbd>
             </div>
-            <span className="text-xs font-extrabold bg-orange-200 text-orange-950 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-mono font-extrabold bg-sky-500/15 text-sky-300 border border-sky-500/30 px-2 py-0.5 rounded-full">
               {preparingOrders.length}
             </span>
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto">
             {preparingOrders.length === 0 ? (
-              <div className="text-center py-12 text-stone-400 text-xs">
+              <div className="text-center py-12 text-stone-500 text-xs font-mono">
                 Nenhum prato na chapa agora.
               </div>
             ) : (
@@ -400,23 +443,24 @@ const LiveOrdersDashboard = () => {
 
         {/* Column 3: Prontos & Em Rota */}
         <div
-          className={`flex-col rounded-2xl bg-emerald-50/40 border border-emerald-200/80 p-4 space-y-3 min-h-[450px] ${
+          className={`flex-col rounded-2xl bg-[#0F1116] border border-emerald-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "ready" ? "flex" : "hidden lg:flex"
           }`}
         >
-          <div className="flex items-center justify-between pb-2 border-b border-emerald-200/60">
+          <div className="flex items-center justify-between pb-2.5 border-b border-stone-800/80">
             <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-emerald-500" />
-              <h2 className="font-bold text-emerald-950 text-sm">Pronto / Saiu para Entrega</h2>
+              <span className="size-2 rounded-full bg-emerald-500" />
+              <h2 className="font-bold text-emerald-300 text-sm">Pronto / Entrega</h2>
+              <Kbd variant="subtle">3</Kbd>
             </div>
-            <span className="text-xs font-extrabold bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-mono font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
               {readyOrders.length}
             </span>
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto">
             {readyOrders.length === 0 ? (
-              <div className="text-center py-12 text-stone-400 text-xs">
+              <div className="text-center py-12 text-stone-500 text-xs font-mono">
                 Nenhum pedido aguardando entrega.
               </div>
             ) : (
@@ -431,7 +475,7 @@ const LiveOrdersDashboard = () => {
                     order.status === "out_for_delivery"
                       ? "Confirmar Entrega ✅"
                       : order.deliveryType === "pickup"
-                      ? "Entregar no Balcão ✅"
+                      ? "Entregar Balcão ✅"
                       : "Concluir Pedido ✅"
                   }
                 />
@@ -518,42 +562,43 @@ const OrderCard = ({
   const driverInfo = driverMatch ? driverMatch[1] : null;
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs hover:shadow-md transition-all space-y-3">
+    <div className="bg-[#14161F] rounded-2xl p-4 border border-[#222736] hover:border-[#383F55] shadow-sm hover:shadow-md transition-all space-y-3">
       {/* Order Header */}
-      <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-2.5">
+      <div className="flex items-start justify-between gap-3 border-b border-stone-800/80 pb-2.5">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-sm font-black text-stone-900">
+            <span className="text-sm font-mono font-black text-white">
               #{order.orderNumber}
             </span>
             {isWhatsapp ? (
-              <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0">
-                <span className="size-1 rounded-full bg-emerald-600 animate-pulse" />
+              <span className="text-[10px] font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 font-mono">
+                <span className="size-1 rounded-full bg-emerald-400 animate-pulse" />
                 WhatsApp IA
               </span>
             ) : (
-              <span className="text-[10px] font-bold bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded shrink-0">
+              <span className="text-[10px] font-bold bg-stone-800 text-stone-300 border border-stone-700/60 px-1.5 py-0.5 rounded shrink-0 font-mono">
                 Cardápio Web
               </span>
             )}
           </div>
-          <div className="text-xs font-bold text-stone-900 mt-1 truncate">{order.customerName}</div>
+          <div className="text-xs font-bold text-stone-200 mt-1 truncate">{order.customerName}</div>
           <div className="text-[11px] text-stone-400 font-mono">{order.customerPhone}</div>
         </div>
 
         <div className="text-right shrink-0 flex flex-col items-end">
-          <div className="text-sm font-black text-stone-900 tabular-nums">
+          <div className="text-sm font-black text-white font-mono tabular-nums">
             {formatBRL(order.total)}
           </div>
           <div className="flex items-center gap-1 mt-1">
-            <span className="inline-block text-[10px] font-semibold text-stone-600 uppercase bg-stone-100 px-1.5 py-0.5 rounded">
+            <span className="inline-block text-[10px] font-mono font-semibold text-stone-300 uppercase bg-stone-850 border border-stone-800 px-1.5 py-0.5 rounded">
               {order.paymentMethod === "pix" ? "⚡ PIX" : order.paymentMethod === "cash" ? "💵 Dinheiro" : "💳 Cartão"}
             </span>
             <button
               type="button"
               onClick={() => onPrintReceipt(order)}
-              title="Imprimir Cupom Térmico (80mm)"
-              className="p-1 rounded-md text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+              title="Imprimir Cupom Térmico (P)"
+              aria-label="Imprimir cupom"
+              className="p-1 rounded-md text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
             >
               <IconPrinter className="size-3.5" />
             </button>
@@ -563,21 +608,21 @@ const OrderCard = ({
 
       {/* Driver Assignment Badge */}
       {order.status === "out_for_delivery" && (
-        <div className="flex items-center gap-1.5 bg-blue-50 text-blue-900 text-[11px] font-bold px-2.5 py-1 rounded-xl border border-blue-200/80">
-          <IconMotorbike className="size-3.5 text-blue-600 shrink-0" />
+        <div className="flex items-center gap-1.5 bg-blue-950/40 text-blue-300 text-[11px] font-bold px-2.5 py-1 rounded-xl border border-blue-500/30 font-mono">
+          <IconMotorbike className="size-3.5 text-blue-400 shrink-0" />
           <span className="truncate">Em Trânsito: {driverInfo || "Motoboy a caminho"}</span>
         </div>
       )}
 
       {/* Delivery Destination — Subtle Line */}
-      <div className="text-xs text-stone-500 flex items-center gap-1.5">
-        <IconMapPin className="size-3.5 shrink-0 text-stone-400" />
+      <div className="text-xs text-stone-400 flex items-center gap-1.5 font-mono">
+        <IconMapPin className="size-3.5 shrink-0 text-stone-500" />
         <span className="truncate">{order.customerAddress || "Retirada no Balcão"}</span>
       </div>
 
       {/* Items List — Scannable in 300ms */}
       {order.items && order.items.length > 0 && (
-        <div className="border-t border-b border-stone-100 py-2 space-y-1.5 text-xs">
+        <div className="border-t border-b border-stone-800/80 py-2 space-y-1.5 text-xs">
           {order.items.map((item) => {
             let customList: string[] = [];
             try {
@@ -588,19 +633,19 @@ const OrderCard = ({
 
             return (
               <div key={item.id} className="space-y-0.5">
-                <div className="font-bold text-stone-900 flex justify-between">
+                <div className="font-bold text-stone-200 flex justify-between">
                   <span>
                     {item.quantity}x {item.productName}
                   </span>
-                  <span className="text-stone-400 font-normal tabular-nums">{formatBRL(item.totalPrice)}</span>
+                  <span className="text-stone-500 font-normal font-mono tabular-nums">{formatBRL(item.totalPrice)}</span>
                 </div>
                 {customList.length > 0 && (
-                  <p className="text-[11px] text-stone-500 leading-snug">
+                  <p className="text-[11px] text-stone-400 leading-snug">
                     {customList.join(" • ")}
                   </p>
                 )}
                 {item.notes && (
-                  <p className="text-[11px] text-amber-800 italic">
+                  <p className="text-[11px] text-amber-400/90 italic">
                     Obs: {item.notes}
                   </p>
                 )}
@@ -612,34 +657,37 @@ const OrderCard = ({
 
       {/* General Order Notes — Minimalist Italic, No Box */}
       {order.notes && (
-        <div className="text-xs text-amber-900/90 italic pl-2.5 border-l-2 border-amber-400 py-0.5 leading-snug">
+        <div className="text-xs text-amber-300/90 italic pl-2.5 border-l-2 border-amber-500/60 py-0.5 leading-snug">
           Obs: {order.notes}
         </div>
       )}
 
-      {/* Action Buttons Row — 1 Primary Action + Print Icon */}
+      {/* Action Buttons Row — Trigger.dev Action Button with Kbd shortcut */}
       <div className="pt-1 flex items-center gap-2">
         <button
           type="button"
           onClick={() => onPrintReceipt(order)}
-          className="p-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-500 hover:text-stone-800 transition-all flex items-center justify-center shrink-0"
-          title="Imprimir Cupom Térmico (80mm)"
+          className="p-2.5 rounded-xl border border-stone-800 bg-[#1A1D27] hover:bg-stone-800 text-stone-300 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0"
+          title="Imprimir Cupom Térmico (P)"
+          aria-label="Imprimir comanda térmica"
         >
           <IconPrinter className="size-4" />
+          <Kbd shortcut="print" variant="secondary" className="hidden sm:inline-flex" />
         </button>
 
         <button
           type="button"
           onClick={() => onStatusChange(order.id, nextStatus)}
-          className={`flex-1 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs ${
+          className={`flex-1 text-xs font-bold py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between shadow-xs ${
             order.status === "pending"
-              ? "bg-stone-900 hover:bg-stone-800 text-white"
+              ? "bg-[#0066FF] hover:bg-[#0052DD] text-white shadow-[#0066FF]/25"
               : order.status === "preparing"
-              ? "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20"
-              : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
+              ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25"
+              : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/25"
           }`}
         >
           <span>{nextActionLabel}</span>
+          <Kbd shortcut="enter" variant="primary" />
         </button>
       </div>
     </div>
