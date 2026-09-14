@@ -1339,6 +1339,13 @@ const DeliveryMenuPage = () => {
             )}
 
             <div className="flex flex-col gap-2">
+              <Link
+                href={`/pedido/${confirmedOrder.id}`}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs text-center flex items-center justify-center gap-1.5 shadow-md shadow-orange-600/20 transition-all"
+              >
+                <span>Acompanhar Pedido ao Vivo</span>
+                <IconArrowRight className="size-4" />
+              </Link>
               <a
                 href={`https://wa.me/5511999990000?text=${encodeURIComponent(
                   `Olá! Acabei de fazer o pedido #${confirmedOrder.orderNumber} (${confirmedOrder.customerName}). Gostaria de acompanhar!`
@@ -1350,12 +1357,6 @@ const DeliveryMenuPage = () => {
                 <IconBrandWhatsapp className="size-4" />
                 <span>Acompanhar pelo WhatsApp</span>
               </a>
-              <Link
-                href="/"
-                className="w-full bg-stone-900 text-white font-bold py-2.5 px-4 rounded-xl text-xs text-center hover:bg-stone-800 transition-colors"
-              >
-                Ver no Painel da Cozinha (Demo)
-              </Link>
               <button
                 onClick={() => setConfirmedOrder(null)}
                 className="w-full text-stone-500 hover:text-stone-700 text-xs font-semibold py-2"

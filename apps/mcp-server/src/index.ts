@@ -47,7 +47,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  const url = new URL(req.url || "/", `http://localhost:${PORT}`);
+  const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
   const pathname = url.pathname;
 
   // 1. Healthcheck
@@ -183,6 +183,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 [Vortile MCP Server] Running on http://localhost:${PORT}`);
+  console.log(`🚀 [Vortile MCP Server] Running on port ${PORT}`);
   console.log(`🔌 Registered ${geminiTools.length} MCP Tools backed by SQLite and Gemini 2.5 Flash.`);
 });
