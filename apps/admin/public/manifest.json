@@ -1,0 +1,18 @@
+{
+  "name": "Vorti Marmitex & Grelhados",
+  "short_name": "Vorti Delivery",
+  "description": "Cardápio digital e delivery com marmitas personalizadas e pedidos via WhatsApp IA",
+  "start_url": "/delivery",
+  "display": "standalone",
+  "background_color": "#FAF9F5",
+  "theme_color": "#EA580C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vortile-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

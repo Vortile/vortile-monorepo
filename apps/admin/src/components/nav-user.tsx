@@ -1,6 +1,5 @@
 "use client";
 
-import { useClerk, useUser } from "@clerk/nextjs";
 import {
   IconDotsVertical,
   IconLogout,
@@ -27,14 +26,9 @@ import {
 
 export const NavUser = () => {
   const { isMobile } = useSidebar();
-  const { user } = useUser();
-  const { signOut } = useClerk();
-
-  const name =
-    user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? "User";
-  const email = user?.primaryEmailAddress?.emailAddress ?? "";
-  const avatar = user?.imageUrl ?? "";
-  const initials = name.slice(0, 2).toUpperCase();
+  const name = "Luciano (Cozinha & Gestão)";
+  const email = "cozinha@vorti.com.br";
+  const initials = "VO";
 
   return (
     <SidebarMenu>
@@ -48,9 +42,8 @@ export const NavUser = () => {
               />
             }
           >
-            <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={avatar} alt={name} />
-              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarFallback className="rounded-lg bg-orange-600 text-white font-semibold">{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{name}</span>
@@ -70,8 +63,7 @@ export const NavUser = () => {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={avatar} alt={name} />
-                    <AvatarFallback className="rounded-lg">
+                    <AvatarFallback className="rounded-lg bg-orange-600 text-white font-semibold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -87,12 +79,12 @@ export const NavUser = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem render={<Link href="/account" />}>
               <IconUserCircle />
-              Account
+              Minha Conta
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem onClick={() => {}}>
               <IconLogout />
-              Log out
+              Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

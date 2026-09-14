@@ -28,6 +28,11 @@ dist/
 .env.test.local
 .env.production.local
 
+# SQLite Database
+*.db
+*.db-shm
+*.db-wal
+
 # Vercel
 .vercel
 .github*

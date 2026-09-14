@@ -1,148 +1,78 @@
-# Vortile Monorepo
+# Vortile Delivery — Cardápio Web & WhatsApp Gemini MCP
 
-A pnpm + Turborepo monorepo for managing merchant communications through WhatsApp Business API (WABA) and email.
+> Plataforma de delivery brasileira com cardápio digital (PWA), gestão de cozinha em tempo real (Kanban), banco de dados local SQLite e integração WhatsApp via **Google Gemini com Model Context Protocol (MCP)**.
 
-## Applications
+---
 
-### apps/server
+## 🌟 Diferenciais do Projeto
 
-**Hono.js API Server** - Port `3000`
+1. **Cardápio Web Brasileiro (Mobile First)**:
+   - Interface rápida, acolhedora e sem cara de "AI slop" genérico.
+   - Padrão brasileiro de marmitaria: montagem por etapas (Tamanho ➔ Carne ➔ Guarnições ➔ Salada ➔ Observações).
+   - Checkout completo com PIX Copia-e-Cola, Cartão na Entrega e Dinheiro com troco.
+2. **WhatsApp Gemini MCP (Adeus bots burros)**:
+   - Cada mensagem é processada pelo Google Gemini com Function Calling conectado diretamente ao banco SQLite.
+   - O montador de marmitas ou cozinheiro manda no WhatsApp: *"acabou o purê de batata"* e a IA pausa a opção do cardápio online em milissegundos.
+   - Comandos de cozinha: *"quais pedidos estão na chapa?"*, *"marmita 102 tá pronta"*, *"pausa a coca 2L"*.
+3. **Dashboard da Cozinha (Kanban ao Vivo)**:
+   - Painel para restaurante com colunas: Novos Pedidos, Em Preparo, Pronto para Entrega e Entregues.
+   - Alerta sonoro e atualização automática sem necessidade de recarregar a página.
+4. **SQLite Local + Drizzle ORM**:
+   - Zero dependência de serviços em nuvem ou bancos externos para rodar localmente.
+   - Alta velocidade com modo WAL ativado (`vortile-delivery.db`).
+5. **Bot Autônomo de Auditoria (3 minutos)**:
+   - Job agendado no Hermes para iterar, verificar qualidade de código e apontar melhorias continuamente.
 
-The backend API server that handles all business logic, database interactions, and third-party integrations.
+---
 
-**Key Features:**
+## 🚀 Como Rodar Localmente
 
-- RESTful API endpoints for all client apps
-- WABA (WhatsApp Business API) integration and management
-- Email handling via Resend
-- Merchant and account management
-- Better Auth authentication (future)
-
-**Main Routes:**
-
-- `/api/health` - Health check
-- `/api/merchants` - Merchant CRUD operations
-- `/api/waba` - WABA messaging and management
-- `/api/waba/onboarding` - WABA account onboarding flow
-- `/api/emails` - Email operations
-
-**Run:**
-
+### 1. Instalar dependências
 ```bash
-pnpm dev:server
+pnpm install
 ```
 
-### apps/admin
-
-**Next.js 16 Admin Dashboard** - Port `3001`
-
-Internal dashboard for Vortile platform administrators to manage merchants, WABA accounts, email campaigns, and view analytics.
-
-**Key Features:**
-
-- Merchant account management
-- WABA registration and configuration
-- Email composition and sending
-- Message history and analytics
-- Dashboard with statistics
-
-**Tech Stack:**
-
-- Next.js 16 (App Router, no `src` directory)
-- shadcn/ui components
-- Tailwind CSS v4
-- React Hook Form + Zod validation
-
-**Run:**
-
+### 2. Criar e popular o banco SQLite
 ```bash
-pnpm dev:admin
+pnpm tsx packages/database/src/seed.ts
 ```
 
-## Packages
-
-### packages/database
-
-**Shared Drizzle ORM Package**
-
-Centralized database schema definitions and utilities using Drizzle ORM with Supabase (Postgres).
-
-**Connection Setup (Supabase):**
-
-Two env vars are required — get both from Supabase Dashboard → Project Settings → Database:
-
-- `DATABASE_URL` — Transaction pooler (port `6543`). Used by the app at runtime. Required in production/Vercel.
-- `DIRECT_URL` — Direct connection (port `5432`). Used **only** by `drizzle-kit` for push/migrate. Never use the pooler for schema migrations.
-
-**Schema Organization:**
-
-All schemas are located in `packages/database/src/schema/` and organized by domain:
-
-**`merchants/`**
-
-- `merchant.schema.ts` - Business entities and profiles
-
-**`messaging/`**
-
-- `waba.schema.ts` - WhatsApp Business Accounts
-- `waba-phone-number.schema.ts` - Phone numbers associated with WABA accounts
-- `waba-template.schema.ts` - Message templates for WABA
-- `waba-webhook.schema.ts` - Webhook configurations for WABA events
-- `waba-credential.schema.ts` - API credentials and tokens for WABA providers
-
-**Naming Convention:**
-Schema files must be named `[table-name].schema.ts`
-
-**ID System:**
-All tables use **UUID v7** for primary keys, providing:
-
-- Time-based sortability
-- Better index performance than random UUIDs
-- Global uniqueness
-
-Use `generateId()` from `@vortile/database/ids` to manually generate IDs.
-
-**Database Commands:**
-
+### 3. Iniciar o servidor
 ```bash
-pnpm db:generate  # Generate migrations
-pnpm db:push      # Push schema to database
+pnpm --filter admin dev
 ```
+Acesse:
+- **Cardápio do Cliente (PWA)**: [http://localhost:3001/delivery](http://localhost:3001/delivery)
+- **Painel da Cozinha (Kanban)**: [http://localhost:3001/](http://localhost:3001/)
+- **Simulador WhatsApp Gemini MCP**: [http://localhost:3001/assistente-ia](http://localhost:3001/assistente-ia)
+- **Gestão de Cardápio & Estoque**: [http://localhost:3001/cardapio](http://localhost:3001/cardapio)
+- **Configurações & iFood Preview**: [http://localhost:3001/configuracoes](http://localhost:3001/configuracoes)
 
-## Tech Stack
+---
 
-- **Package Manager**: pnpm (workspaces) + Turborepo
-- **Backend**: Hono.js, TypeScript
-- **Frontend**: Next.js 16 (App Router), shadcn/ui
-- **Database**: Supabase (Postgres) + Drizzle ORM
-- **Styling**: Tailwind CSS v4
-- **Linting**: ESLint (root `eslint.config.mjs`)
-- **Formatting**: Prettier with Tailwind plugin
+## 🤖 Configuração do Google Gemini (Opcional)
 
-## Development
+Por padrão, o projeto possui um **motor local inteligente de MCP** que executa todas as ferramentas diretamente no banco SQLite para desenvolvimento offline.
+Para conectar a API oficial do Google Gemini em produção:
 
-Run all applications:
-
-```bash
-pnpm dev
+1. Obtenha sua chave no [Google AI Studio](https://aistudio.google.com/).
+2. Adicione no arquivo `apps/admin/.env.local`:
+```env
+GEMINI_API_KEY=sua_chave_aqui
 ```
+O sistema usará automaticamente o modelo `gemini-2.5-flash` com Function Calling!
 
-Run specific applications:
+---
 
-```bash
-pnpm dev:server
-pnpm dev:admin
+## 📂 Estrutura de Pastas
+
 ```
-
-Build all:
-
-```bash
-pnpm build
-```
-
-Build specific apps:
-
-```bash
-pnpm build:server
-pnpm build:admin
+vortile-monorepo/
+├── apps/
+│   └── admin/                  # Next.js 16 Fullstack App (PWA + Dashboard + API)
+├── packages/
+│   └── database/               # SQLite + Drizzle ORM (schema, seed, migrate)
+├── docs/
+│   └── ARCHITECTURE.md         # Especificação técnica detalhada
+└── vortile-delivery.db         # Banco de dados SQLite local
 ```
