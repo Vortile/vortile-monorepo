@@ -30,7 +30,7 @@ import { useAuth } from "@/lib/auth-context";
 export const AppSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
-  const { isAdmin, currentUser } = useAuth();
+  const { isAdmin } = useAuth();
 
   const navItems = [
     { title: "Esteira de Pedidos", url: "/", icon: IconChefHat },

@@ -1,30 +1,26 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env"],
+  "globalDependencies": [".env", ".env.local"],
   "globalEnv": [
     "NODE_ENV",
     "PORT",
-    "DATABASE_URL",
-
-    "GUPSHUP_PARTNER_ID",
-    "GUPSHUP_PARTNER_TOKEN",
-    "GUPSHUP_PARTNER_API_URL",
-    "GUPSHUP_WEBHOOK_VERIFY_TOKEN",
-
-    "RESEND_API_KEY",
-    "RESEND_WEBHOOK_SECRET",
-    "EMAIL_FROM",
-    "ADMIN_ORIGIN",
-    "NEXT_PUBLIC_API_BASE_URL",
-
-    "CLERK_SECRET_KEY",
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+    "DATABASE_PATH",
+    "GEMINI_API_KEY",
+    "GOOGLE_API_KEY",
+    "WHATSAPP_VERIFY_TOKEN",
+    "ELEVENLABS_API_KEY",
+    "ELEVEN_API_KEY",
+    "NEXT_PUBLIC_API_BASE_URL"
   ],
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "@vortile/database#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
     },
     "dev": {
       "persistent": true,
@@ -33,6 +29,9 @@
     },
     "start": {
       "persistent": true,
+      "cache": false
+    },
+    "test": {
       "cache": false
     },
     "lint": {

@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  IconUsers,
   IconUserPlus,
   IconShieldLock,
   IconMotorbike,
-  IconCheck,
-  IconX,
   IconTrash,
   IconKey,
   IconMail,
@@ -42,23 +39,23 @@ const UsuariosPage = () => {
   const [pin, setPin] = useState("1234");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
       const data = await res.json();
       if (data.users) {
         setUsers(data.users);
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro ao carregar usuários");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +90,7 @@ const UsuariosPage = () => {
       } else {
         toast.error(data.error || "Erro ao cadastrar usuário");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação com o servidor");
     } finally {
       setIsSubmitting(false);
@@ -118,10 +115,18 @@ const UsuariosPage = () => {
       } else {
         toast.error("Erro ao remover usuário");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex-1 p-8 flex items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (

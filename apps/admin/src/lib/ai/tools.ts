@@ -1,12 +1,9 @@
 import {
   db,
-  restaurants,
   categories,
   products,
-  optionGroups,
   options,
   orders,
-  orderItems,
   whatsappMessages,
   eq,
   desc,
@@ -437,7 +434,7 @@ export const executeToolCall = async (
       const pausedOpts = allOptions.filter((o) => !o.isAvailable).map((o) => o.name);
       const pausedProds = allProducts.filter((p) => !p.isAvailable).map((p) => p.name);
 
-      let spoken = `O cardápio tá ativo com ${allProducts.length} pratos cadastrados.`;
+      let spoken = `O cardápio tá ativo com ${allCategories.length} categorias e ${allProducts.length} pratos cadastrados.`;
       if (pausedOpts.length > 0 || pausedProds.length > 0) {
         const pausedAll = [...pausedProds, ...pausedOpts];
         spoken += ` Temos ${pausedAll.join(" e ")} pausados no momento.`;

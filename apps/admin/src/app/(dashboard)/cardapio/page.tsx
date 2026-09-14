@@ -1,18 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  IconToolsKitchen2,
-  IconCheck,
-  IconX,
-  IconAlertCircle,
-  IconRefresh,
   IconSparkles,
   IconPlus,
   IconSearch,
   IconEdit,
   IconTrash,
-  IconPhoto,
   IconFolders,
   IconEye,
 } from "@tabler/icons-react";
@@ -90,7 +84,7 @@ const MenuManagementPage = () => {
   const [prodPromoPrice, setProdPromoPrice] = useState("");
   const [prodImageUrl, setProdImageUrl] = useState("");
   const [prodBadge, setProdBadge] = useState("");
-  const [prodHasCustom, setProdHasCustom] = useState(false);
+  const [prodHasCustom, _setProdHasCustom] = useState(false);
 
   // Category form state
   const [catName, setCatName] = useState("");
@@ -100,7 +94,7 @@ const MenuManagementPage = () => {
   const [optName, setOptName] = useState("");
   const [optPriceDelta, setOptPriceDelta] = useState("0.00");
 
-  const fetchMenu = async () => {
+  const fetchMenu = useCallback(async () => {
     try {
       const res = await fetch("/api/menu?slug=vorti-marmitex");
       const data = await res.json();
@@ -110,16 +104,16 @@ const MenuManagementPage = () => {
           setProdCategoryId(data.categories[0].id);
         }
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro ao carregar cardápio");
     } finally {
       setLoading(false);
     }
-  };
+  }, [prodCategoryId]);
 
   useEffect(() => {
     fetchMenu();
-  }, []);
+  }, [fetchMenu]);
 
   // Quick toggle product availability
   const toggleProduct = async (product: ProductItem) => {
@@ -142,7 +136,7 @@ const MenuManagementPage = () => {
         toast.success(newStatus ? `"${product.name}" reativado!` : `"${product.name}" pausado no cardápio.`);
         fetchMenu();
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro ao atualizar disponibilidade");
     }
   };
@@ -168,7 +162,7 @@ const MenuManagementPage = () => {
         toast.success(newStatus ? `"${option.name}" liberado!` : `"${option.name}" marcado como esgotado.`);
         fetchMenu();
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro ao atualizar guarnição");
     }
   };
@@ -208,7 +202,7 @@ const MenuManagementPage = () => {
       } else {
         toast.error(data.error || "Erro ao criar prato");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -244,7 +238,7 @@ const MenuManagementPage = () => {
       } else {
         toast.error(data.error || "Erro ao salvar alterações");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -262,7 +256,7 @@ const MenuManagementPage = () => {
       } else {
         toast.error("Erro ao excluir prato");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -292,7 +286,7 @@ const MenuManagementPage = () => {
       } else {
         toast.error(data.error || "Erro ao criar categoria");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -323,7 +317,7 @@ const MenuManagementPage = () => {
       } else {
         toast.error(data.error || "Erro ao adicionar opção");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };

@@ -1,20 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   IconCash,
   IconQrcode,
   IconCreditCard,
-  IconReceipt2,
   IconPlus,
   IconMinus,
   IconLock,
   IconLockOpen,
-  IconAlertCircle,
-  IconCheck,
   IconClock,
   IconHistory,
-  IconRefresh,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -50,7 +46,7 @@ interface CashTx {
 }
 
 const CaixaTurnoPage = () => {
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [register, setRegister] = useState<ShiftRegister | null>(null);
   const [transactions, setTransactions] = useState<CashTx[]>([]);
@@ -86,7 +82,7 @@ const CaixaTurnoPage = () => {
         setRegister(null);
         setTransactions([]);
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro ao carregar dados do caixa");
     } finally {
       setLoading(false);
@@ -98,7 +94,9 @@ const CaixaTurnoPage = () => {
       const res = await fetch("/api/caixa?history=true");
       const data = await res.json();
       if (data.shifts) setHistoryShifts(data.shifts);
-    } catch (e) {}
+    } catch {
+      // ignore
+    }
   };
 
   useEffect(() => {
@@ -128,7 +126,7 @@ const CaixaTurnoPage = () => {
       } else {
         toast.error(data.error || "Erro ao abrir caixa");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -159,7 +157,7 @@ const CaixaTurnoPage = () => {
       } else {
         toast.error(data.error || "Erro ao fechar caixa");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };
@@ -193,7 +191,7 @@ const CaixaTurnoPage = () => {
       } else {
         toast.error(data.error || "Erro ao registrar movimentação");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro na comunicação");
     }
   };

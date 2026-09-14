@@ -1,22 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  IconReceipt2,
-  IconClock,
-  IconCheck,
   IconMotorbike,
-  IconChefHat,
-  IconAlertCircle,
   IconVolume,
   IconVolumeOff,
   IconRefresh,
-  IconFlame,
-  IconCash,
-  IconQrcode,
-  IconCreditCard,
   IconExternalLink,
-  IconArrowRight,
   IconPrinter,
   IconBrandWhatsapp,
   IconX,
@@ -74,7 +64,7 @@ const LiveOrdersDashboard = () => {
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch("/api/orders");
       const data = await res.json();
@@ -98,18 +88,18 @@ const LiveOrdersDashboard = () => {
         isInitialLoadRef.current = false;
         setOrders(fetchedOrders);
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Error fetching orders
     } finally {
       setLoading(false);
     }
-  };
+  }, [soundEnabled]);
 
   useEffect(() => {
     fetchOrders();
     const interval = setInterval(fetchOrders, 6000); // Live poll every 6s
     return () => clearInterval(interval);
-  }, [soundEnabled]);
+  }, [fetchOrders]);
 
   const updateOrderStatus = async (
     orderId: string,
@@ -133,7 +123,7 @@ const LiveOrdersDashboard = () => {
       } else {
         toast.error("Erro ao atualizar status");
       }
-    } catch (e) {
+    } catch {
       toast.error("Erro de conexão");
     }
   };
@@ -210,7 +200,7 @@ const LiveOrdersDashboard = () => {
             onClick={fetchOrders}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 transition-all shadow-xs"
           >
-            <IconRefresh className="size-4" />
+            <IconRefresh className={`size-4 ${loading ? "animate-spin" : ""}`} />
             <span>Atualizar</span>
           </button>
 
@@ -540,7 +530,9 @@ const OrderCard = ({
             let customList: string[] = [];
             try {
               if (item.customizationsJson) customList = JSON.parse(item.customizationsJson);
-            } catch (e) {}
+            } catch {
+              // ignore parse errors
+            }
 
             return (
               <div key={item.id} className="space-y-0.5">

@@ -1,4 +1,4 @@
-import { db, orders, orderItems, products, categories, optionGroups, options, eq } from "@vortile/database";
+import { db, orders, products, categories, optionGroups, options, eq } from "@vortile/database";
 
 /**
  * iFood Integration Architecture Stub

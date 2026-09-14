@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   IconSearch,
   IconShoppingBag,
@@ -16,7 +17,6 @@ import {
   IconSparkles,
   IconChefHat,
   IconArrowRight,
-  IconAlertCircle,
   IconQrcode,
   IconCreditCard,
   IconCash,
@@ -432,13 +432,13 @@ const DeliveryMenuPage = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
           {/* Quick link to Dashboard / Staff */}
-          <a
+          <Link
             href="/"
             className="absolute top-4 right-4 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/80 transition-all border border-white/20"
           >
             <IconChefHat className="size-3.5 text-orange-400" />
             <span>Painel da Cozinha</span>
-          </a>
+          </Link>
         </div>
 
         {/* Restaurant Info Card */}
@@ -704,7 +704,7 @@ const DeliveryMenuPage = () => {
                             <p className="text-xs text-stone-500">{group.description}</p>
                           )}
                         </div>
-                        <span className="text-xs font-semibold text-stone-400">
+                        <span className={`text-xs font-semibold ${isSatisfied ? "text-emerald-600" : "text-amber-600"}`}>
                           {picked.length}/{group.maxSelected}
                         </span>
                       </div>
@@ -1076,6 +1076,20 @@ const DeliveryMenuPage = () => {
                   )}
                 </div>
 
+                {/* General Order Notes */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    Observações do Pedido (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    placeholder="Ex: Interfone quebrado, deixar na portaria..."
+                    className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                </div>
+
                 {/* Payment Method */}
                 <div>
                   <label className="block text-xs font-bold text-stone-800 mb-1.5">
@@ -1336,12 +1350,12 @@ const DeliveryMenuPage = () => {
                 <IconBrandWhatsapp className="size-4" />
                 <span>Acompanhar pelo WhatsApp</span>
               </a>
-              <a
+              <Link
                 href="/"
                 className="w-full bg-stone-900 text-white font-bold py-2.5 px-4 rounded-xl text-xs text-center hover:bg-stone-800 transition-colors"
               >
                 Ver no Painel da Cozinha (Demo)
-              </a>
+              </Link>
               <button
                 onClick={() => setConfirmedOrder(null)}
                 className="w-full text-stone-500 hover:text-stone-700 text-xs font-semibold py-2"

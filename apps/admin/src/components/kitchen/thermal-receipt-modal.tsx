@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   IconPrinter,
   IconX,
@@ -190,7 +190,9 @@ export const ThermalReceiptModal = ({ order, isOpen, onClose }: ThermalReceiptMo
                     let customList: string[] = [];
                     try {
                       if (item.customizationsJson) customList = JSON.parse(item.customizationsJson);
-                    } catch (e) {}
+                    } catch {
+                      // ignore parse error
+                    }
 
                     return (
                       <div key={idx} className="space-y-0.5">
@@ -291,7 +293,9 @@ export const ThermalReceiptModal = ({ order, isOpen, onClose }: ThermalReceiptMo
                     let customList: string[] = [];
                     try {
                       if (item.customizationsJson) customList = JSON.parse(item.customizationsJson);
-                    } catch (e) {}
+                    } catch {
+                      // ignore parse error
+                    }
 
                     // Extract meat choices
                     const meatSelections = customList.filter(
@@ -375,7 +379,9 @@ export const ThermalReceiptModal = ({ order, isOpen, onClose }: ThermalReceiptMo
                     let customList: string[] = [];
                     try {
                       if (item.customizationsJson) customList = JSON.parse(item.customizationsJson);
-                    } catch (e) {}
+                    } catch {
+                      // ignore parse error
+                    }
 
                     return (
                       <div key={idx} className="border border-stone-300 p-2 rounded space-y-1.5">

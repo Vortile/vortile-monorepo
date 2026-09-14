@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   IconBrandWhatsapp,
   IconSparkles,
@@ -10,14 +10,8 @@ import {
   IconQrcode,
   IconCheck,
   IconChecks,
-  IconClock,
   IconSearch,
-  IconDeviceMobile,
-  IconRefresh,
   IconReceipt2,
-  IconPhoneCall,
-  IconAlertCircle,
-  IconInfoCircle,
   IconVolume,
   IconArrowLeft,
 } from "@tabler/icons-react";
@@ -185,7 +179,9 @@ const WhatsAppOfficialPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeContact = contacts.find((c) => c.id === selectedContactId) || contacts[0];
-  const activeMessages = chats[activeContact.id] || [];
+  const activeMessages = useMemo(() => {
+    return chats[activeContact.id] || [];
+  }, [chats, activeContact.id]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -275,7 +271,7 @@ const WhatsAppOfficialPage = () => {
         } else {
           toast.error(data.error || "Erro ao responder mensagem");
         }
-      } catch (err) {
+      } catch {
         toast.error("Erro de conexão com o WhatsApp API");
       } finally {
         setLoading(false);
@@ -310,7 +306,7 @@ const WhatsAppOfficialPage = () => {
       if (ptVoice) utterance.voice = ptVoice;
       window.speechSynthesis.speak(utterance);
       toast.success("Reproduzindo áudio falado da IA 🔊");
-    } catch (e) {
+    } catch {
       toast.info(text);
     }
   };
@@ -588,7 +584,6 @@ const WhatsAppOfficialPage = () => {
           {/* Messages Feed */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {activeMessages.map((msg) => {
-              const isMe = msg.sender === "me";
               const isAi = msg.sender === "ai";
               const isContact = msg.sender === "contact";
 

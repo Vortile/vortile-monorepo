@@ -1,14 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   IconTruck,
   IconCheck,
   IconRefresh,
-  IconAlertCircle,
-  IconBuildingStore,
-  IconReceipt2,
-  IconSparkles,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 

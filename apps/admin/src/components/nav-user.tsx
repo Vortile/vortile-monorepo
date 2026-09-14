@@ -2,7 +2,6 @@
 
 import {
   IconDotsVertical,
-  IconUserCircle,
   IconUsers,
   IconShieldLock,
   IconMotorbike,

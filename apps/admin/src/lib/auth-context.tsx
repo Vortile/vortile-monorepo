@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 export type UserRole = "admin" | "operador";
 
@@ -44,24 +44,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User>(defaultAdmin);
   const [usersList, setUsersList] = useState<User[]>([defaultAdmin]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
       const data = await res.json();
       if (data.users && data.users.length > 0) {
         setUsersList(data.users);
-        // keep current user or default to first admin
         const found = data.users.find((u: User) => u.id === currentUser.id);
         if (found) setCurrentUser(found);
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // ignore
     }
-  };
+  }, [currentUser.id]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const switchUser = (userId: string) => {
     const target = usersList.find((u) => u.id === userId);

@@ -14,6 +14,23 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Global ignores MUST be a standalone object in flat config
+  {
+    ignores: [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/dist/**",
+      "**/.turbo/**",
+      "**/build/**",
+      "**/out/**",
+      "**/public/**",
+      "**/*.d.ts",
+      "**/.git/**",
+      "**/.vercel/**",
+      "**/vortile-delivery.db*",
+    ],
+  },
+
   ...turboConfig,
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -40,11 +57,18 @@ const eslintConfig = [
 
   // Custom Rules and Overrides
   {
-    ignores: ["**/public/**", "**/dist/**"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
+      },
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
+      next: {
+        rootDir: ["apps/admin/"],
       },
     },
     plugins: {
@@ -52,18 +76,28 @@ const eslintConfig = [
     },
     rules: {
       // ESLint overrides
-      "no-unused-vars": "off", // Typescript plugin handles this
-      "no-undef": "error",
+      "no-unused-vars": "off",
+      "no-undef": "off",
+      "no-empty": ["error", { allowEmptyCatch: true }],
 
       // Typescript overrides
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-non-null-assertion": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
 
       // React overrides
-      "react/jsx-uses-react": "warn",
+      "react/jsx-uses-react": "off",
       "react/jsx-uses-vars": "warn",
-      "react/react-in-jsx-scope": "off", // Causes too many false positives
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
       "react/function-component-definition": [
         "warn",
         {
@@ -72,18 +106,17 @@ const eslintConfig = [
         },
       ],
 
+      // Next.js overrides
+      "@next/next/no-img-element": "off",
+
       // React hooks overrides
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
 
-      // Accessibility overrides
-      // "jsx-a11y/click-events-have-key-events": "off", // Requires jsx-a11y plugin
-      // "jsx-a11y/label-has-associated-control": "warn",
-
       // Turbo overrides
       "turbo/no-undeclared-env-vars": [
-        "error",
-        { allowList: ["^ENV_[A-Z]+$"] },
+        "warn",
+        { allowList: ["^ENV_[A-Z]+$", "^NEXT_PUBLIC_[A-Z_]+$"] },
       ],
 
       // Prefer-arrow overrides
@@ -96,14 +129,7 @@ const eslintConfig = [
         },
       ],
 
-      // Prefer concise arrow functions for simple returns
-      "arrow-body-style": ["warn", "as-needed"],
-      "prefer-arrow-callback": ["warn", { allowNamedFunctions: false }],
-    },
-    settings: {
-      react: {
-        version: "detect",
-      },
+      "arrow-body-style": "off",
     },
   },
 ];

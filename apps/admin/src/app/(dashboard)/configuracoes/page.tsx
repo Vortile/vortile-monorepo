@@ -1,15 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  IconSettings,
   IconBuildingStore,
-  IconClock,
   IconMotorbike,
   IconQrcode,
   IconSparkles,
-  IconDeviceMobile,
-  IconCheck,
   IconVolume,
   IconPrinter,
   IconBrandWhatsapp,

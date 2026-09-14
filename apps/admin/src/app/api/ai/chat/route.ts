@@ -30,7 +30,7 @@ export const POST = async (request: Request) => {
           createdAt: new Date().toISOString(),
         })
         .run();
-    } catch (e) {
+    } catch {
       // Non-blocking
     }
 
@@ -55,7 +55,7 @@ export const POST = async (request: Request) => {
           createdAt: new Date().toISOString(),
         })
         .run();
-    } catch (e) {
+    } catch {
       // Non-blocking
     }
 

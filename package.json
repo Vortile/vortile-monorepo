@@ -4,19 +4,13 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "build:server": "turbo --filter server build",
-    "build:admin": "turbo --filter admin build",
-    "dev": "turbo dev",
-    "dev:server": "turbo dev --filter=server",
-    "dev:email": "turbo dev --filter=email",
-    "dev:admin": "turbo dev --filter=admin",
-    "start": "pnpm -r --parallel start",
-    "i": "pnpm -r i",
-    "preinstall": "npx only-allow pnpm",
-    "clean": "pnpm -r --parallel exec rm -rf node_modules && rm -rf node_modules",
+    "dev": "pnpm --filter admin dev",
+    "start": "pnpm --filter admin start",
+    "test": "pnpm --filter admin test",
     "lint": "eslint .",
-    "db:generate": "pnpm --filter @vortile/database generate",
-    "db:push": "pnpm --filter @vortile/database db:push"
+    "db:migrate": "pnpm --filter @vortile/database migrate",
+    "db:seed": "pnpm --filter @vortile/database seed",
+    "clean": "pnpm -r --parallel exec rm -rf node_modules && rm -rf node_modules"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -45,11 +39,9 @@
     "typescript-eslint": "^8.37.0"
   },
   "packageManager": "pnpm@10.11.0",
-  "pnpm": {
-    "overrides": {
-      "drizzle-orm": "0.30.10",
-      "@types/react": "19.0.2",
-      "@types/react-dom": "19.0.2"
-    }
+  "overrides": {
+    "drizzle-orm": "0.30.10",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2"
   }
 }

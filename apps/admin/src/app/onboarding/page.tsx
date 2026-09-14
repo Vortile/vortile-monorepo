@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   IconArrowRight,
   IconArrowLeft,
   IconCheck,
   IconFlame,
-  IconBuildingStore,
   IconBrandWhatsapp,
-  IconMotorbike,
-  IconQrcode,
   IconSparkles,
   IconVolume,
   IconRocket,
@@ -64,25 +61,13 @@ const OnboardingPage = () => {
 
       window.speechSynthesis.speak(utterance);
       toast.success("Reproduzindo voz falada da IA 🔊");
-    } catch (e) {
+    } catch {
       setIsPlayingAudio(false);
       toast.info(tutorialSpokenText);
     }
   };
 
-  // Keyboard navigation: Enter to advance
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey && currentStep < TOTAL_STEPS) {
-        e.preventDefault();
-        handleNextStep();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentStep, storeName, whatsapp, deliveryFee, pixKey]);
-
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (currentStep === 1 && !storeName.trim()) {
       toast.warning("Por favor informe o nome do restaurante.");
       return;
@@ -94,7 +79,19 @@ const OnboardingPage = () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);
     }
-  };
+  }, [currentStep, storeName, whatsapp]);
+
+  // Keyboard navigation: Enter to advance
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey && currentStep < TOTAL_STEPS) {
+        e.preventDefault();
+        handleNextStep();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentStep, handleNextStep]);
 
   const handlePrevStep = () => {
     if (currentStep > 1) {
@@ -128,7 +125,7 @@ const OnboardingPage = () => {
       } else {
         toast.error(data.error || "Erro ao salvar dados.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Erro na comunicação com o servidor.");
     } finally {
       setIsSubmitting(false);
