@@ -19,6 +19,8 @@ const pageLabels: Record<string, string> = {
   "/whatsapp": "WhatsApp da Loja (Operacional & Atendimento IA)",
   "/assistente-ia": "WhatsApp da Loja",
   "/cardapio": "Gestão do Cardápio & Estoque",
+  "/caixa": "Abertura & Fechamento de Caixa",
+  "/usuarios": "Gestão de Usuários & Cargos",
   "/ifood": "Hub de Integração iFood",
   "/configuracoes": "Configurações do Restaurante",
   "/delivery": "Cardápio Web do Cliente (PWA)",

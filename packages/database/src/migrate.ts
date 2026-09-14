@@ -113,6 +113,19 @@ export const runMigrations = () => {
       notes TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      phone TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'operador',
+      pin TEXT NOT NULL DEFAULT '1234',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      avatar_url TEXT,
+      created_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS restaurant_staff (
       id TEXT PRIMARY KEY,
       restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
@@ -132,10 +145,41 @@ export const runMigrations = () => {
       tool_calls_json TEXT,
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS cash_registers (
+      id TEXT PRIMARY KEY,
+      restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
+      opened_by TEXT NOT NULL,
+      closed_by TEXT,
+      opened_at TEXT NOT NULL,
+      closed_at TEXT,
+      initial_amount REAL NOT NULL DEFAULT 0.0,
+      total_sales REAL NOT NULL DEFAULT 0.0,
+      total_pix REAL NOT NULL DEFAULT 0.0,
+      total_card REAL NOT NULL DEFAULT 0.0,
+      total_cash REAL NOT NULL DEFAULT 0.0,
+      total_inflow REAL NOT NULL DEFAULT 0.0,
+      total_outflow REAL NOT NULL DEFAULT 0.0,
+      expected_cash REAL,
+      actual_cash REAL,
+      difference REAL,
+      status TEXT NOT NULL DEFAULT 'open',
+      notes TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS cash_transactions (
+      id TEXT PRIMARY KEY,
+      cash_register_id TEXT NOT NULL REFERENCES cash_registers(id),
+      type TEXT NOT NULL,
+      amount REAL NOT NULL,
+      reason TEXT NOT NULL,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
   `);
 
   console.log("SQLite tables created successfully.");
-}
+};
 
 if (require.main === module) {
   runMigrations();

@@ -157,7 +157,25 @@ export const orderItems = sqliteTable("order_items", {
   notes: text("notes"),
 });
 
-// 8. Kitchen & Restaurant Staff (Authorized numbers for MCP commands via WhatsApp)
+// 8. Users & Access Control (Roles: 'admin' | 'operador')
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey(),
+  restaurantId: text("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone").notNull(),
+  role: text("role").notNull().default("operador"), // admin, operador
+  pin: text("pin").notNull().default("1234"), // 4-digit quick pin for POS
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  avatarUrl: text("avatar_url"),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
+// 9. Kitchen & Restaurant Staff (Authorized numbers for MCP commands via WhatsApp)
 export const restaurantStaff = sqliteTable("restaurant_staff", {
   id: text("id").primaryKey(),
   restaurantId: text("restaurant_id")
@@ -172,7 +190,7 @@ export const restaurantStaff = sqliteTable("restaurant_staff", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-// 9. WhatsApp Messages / Conversation History
+// 10. WhatsApp Messages / Conversation History
 export const whatsappMessages = sqliteTable("whatsapp_messages", {
   id: text("id").primaryKey(),
   restaurantId: text("restaurant_id")
@@ -187,12 +205,53 @@ export const whatsappMessages = sqliteTable("whatsapp_messages", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
+// 11. Cash Registers / Turnos de Caixa (Abertura e Fechamento)
+export const cashRegisters = sqliteTable("cash_registers", {
+  id: text("id").primaryKey(),
+  restaurantId: text("restaurant_id")
+    .notNull()
+    .references(() => restaurants.id),
+  openedBy: text("opened_by").notNull(),
+  closedBy: text("closed_by"),
+  openedAt: text("opened_at").notNull().$defaultFn(() => new Date().toISOString()),
+  closedAt: text("closed_at"),
+  initialAmount: real("initial_amount").notNull().default(0.0), // Fundo de caixa / troco
+  totalSales: real("total_sales").notNull().default(0.0),
+  totalPix: real("total_pix").notNull().default(0.0),
+  totalCard: real("total_card").notNull().default(0.0),
+  totalCash: real("total_cash").notNull().default(0.0),
+  totalInflow: real("total_inflow").notNull().default(0.0), // Suprimentos
+  totalOutflow: real("total_outflow").notNull().default(0.0), // Sangrias
+  expectedCash: real("expected_cash"), // initialAmount + totalCash + totalInflow - totalOutflow
+  actualCash: real("actual_cash"), // contagem informada no fechamento
+  difference: real("difference"), // actualCash - expectedCash (sobra ou falta)
+  status: text("status").notNull().default("open"), // open, closed
+  notes: text("notes"),
+});
+
+// 12. Cash Transactions / Sangrias e Suprimentos
+export const cashTransactions = sqliteTable("cash_transactions", {
+  id: text("id").primaryKey(),
+  cashRegisterId: text("cash_register_id")
+    .notNull()
+    .references(() => cashRegisters.id),
+  type: text("type").notNull(), // 'inflow' (suprimento) ou 'outflow' (sangria)
+  amount: real("amount").notNull(),
+  reason: text("reason").notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
 // Relations
 export const restaurantsRelations = relations(restaurants, ({ many }) => ({
   categories: many(categories),
   products: many(products),
   orders: many(orders),
   staff: many(restaurantStaff),
+  users: many(users),
+  cashRegisters: many(cashRegisters),
 }));
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -215,16 +274,13 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   optionGroups: many(optionGroups),
 }));
 
-export const optionGroupsRelations = relations(
-  optionGroups,
-  ({ one, many }) => ({
-    product: one(products, {
-      fields: [optionGroups.productId],
-      references: [products.id],
-    }),
-    options: many(options),
+export const optionGroupsRelations = relations(optionGroups, ({ one, many }) => ({
+  product: one(products, {
+    fields: [optionGroups.productId],
+    references: [products.id],
   }),
-);
+  options: many(options),
+}));
 
 export const optionsRelations = relations(options, ({ one }) => ({
   group: one(optionGroups, {
@@ -249,5 +305,20 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   product: one(products, {
     fields: [orderItems.productId],
     references: [products.id],
+  }),
+}));
+
+export const cashRegistersRelations = relations(cashRegisters, ({ one, many }) => ({
+  restaurant: one(restaurants, {
+    fields: [cashRegisters.restaurantId],
+    references: [restaurants.id],
+  }),
+  transactions: many(cashTransactions),
+}));
+
+export const cashTransactionsRelations = relations(cashTransactions, ({ one }) => ({
+  cashRegister: one(cashRegisters, {
+    fields: [cashTransactions.cashRegisterId],
+    references: [cashRegisters.id],
   }),
 }));

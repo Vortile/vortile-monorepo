@@ -9,6 +9,8 @@ import {
   orders,
   orderItems,
   restaurantStaff,
+  users,
+  cashRegisters,
 } from "./index";
 
 export const seed = async () => {
@@ -520,7 +522,55 @@ export const seed = async () => {
     ])
     .onConflictDoNothing();
 
-  console.log("Database seeded successfully with restaurant, categories, dishes, options and mock orders!");
+  // 8. Default System Users (Admin & Operador)
+  await db
+    .insert(users)
+    .values([
+      {
+        id: "usr_admin_luciano",
+        restaurantId,
+        name: "Luciano (Administrador)",
+        email: "admin@vorti.com.br",
+        phone: "5511987654321",
+        role: "admin",
+        pin: "1234",
+        isActive: true,
+      },
+      {
+        id: "usr_operador_mateus",
+        restaurantId,
+        name: "Mateus (Operador Delivery)",
+        email: "operador@vorti.com.br",
+        phone: "5511999998888",
+        role: "operador",
+        pin: "4321",
+        isActive: true,
+      },
+    ])
+    .onConflictDoNothing();
+
+  // 9. Initial Open Cash Register (Turno Aberto)
+  await db
+    .insert(cashRegisters)
+    .values({
+      id: "cx_turno_hoje",
+      restaurantId,
+      openedBy: "Luciano (Administrador)",
+      openedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(), // Aberto há 3 horas
+      initialAmount: 100.0, // Fundo de troco inicial
+      totalSales: 103.3,
+      totalPix: 63.8,
+      totalCard: 39.5,
+      totalCash: 0.0,
+      totalInflow: 0.0,
+      totalOutflow: 0.0,
+      expectedCash: 100.0,
+      status: "open",
+      notes: "Turno da manhã aberto com troco padrão de R$ 100.",
+    })
+    .onConflictDoNothing();
+
+  console.log("Database seeded successfully with restaurant, categories, dishes, options, mock orders, users and cash register!");
 }
 
 if (require.main === module) {
