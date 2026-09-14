@@ -13,7 +13,6 @@ import {
   IconMapPin,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
-import Link from "next/link";
 import { playOrderChime } from "@/lib/audio";
 import { ThermalReceiptModal } from "@/components/kitchen/thermal-receipt-modal";
 
@@ -204,14 +203,15 @@ const LiveOrdersDashboard = () => {
             <span>Atualizar</span>
           </button>
 
-          <Link
-            href="/delivery"
+          <a
+            href="http://localhost:3002"
             target="_blank"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-sm shadow-orange-600/20 transition-all"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white transition-all shadow-xs shadow-orange-600/20"
           >
-            <span>Ver Cardápio Web</span>
-            <IconExternalLink className="size-3.5" />
-          </Link>
+            <span>Ver Cardápio Web (Cliente)</span>
+            <IconExternalLink className="size-4" />
+          </a>
         </div>
       </div>
 

@@ -7,6 +7,7 @@
     "DATABASE_PATH",
     "GEMINI_API_KEY",
     "GOOGLE_API_KEY",
+    "MCP_SERVER_PORT",
     "WHATSAPP_VERIFY_TOKEN",
     "ELEVENLABS_API_KEY",
     "ELEVEN_API_KEY",
@@ -19,6 +20,14 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "@vortile/database#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "@vortile/mcp#build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "mcp-server#build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": []
     },

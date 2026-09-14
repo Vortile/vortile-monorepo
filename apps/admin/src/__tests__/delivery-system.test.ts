@@ -19,8 +19,7 @@ import {
   whatsappMessages,
   eq,
 } from "@vortile/database";
-import { executeToolCall } from "../lib/ai/tools";
-import { processWhatsAppMessage } from "../lib/ai/gemini";
+import { executeToolCall, processWhatsAppMessage } from "@vortile/mcp";
 
 test("Vortile Delivery — Test Pipeline", async (t) => {
   const restaurantId = "rest_vorti_marmitex";

@@ -44,7 +44,7 @@ export const AppSidebar = ({
           { title: "Configurações", url: "/configuracoes", icon: IconSettings },
         ]
       : []),
-    { title: "Cardápio Web (PWA)", url: "/delivery", icon: IconDeviceMobile, badge: "Abrir ↗" },
+    { title: "Cardápio Web (PWA)", url: "http://localhost:3002", icon: IconDeviceMobile, badge: "Porta 3002 ↗" },
   ];
 
   return (

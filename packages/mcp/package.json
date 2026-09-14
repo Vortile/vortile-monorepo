@@ -1,0 +1,22 @@
+{
+  "name": "@vortile/mcp",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@google/genai": "^2.22.0",
+    "@vortile/database": "workspace:*",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "0.30.10"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^20",
+    "typescript": "^5.0.0"
+  }
+}

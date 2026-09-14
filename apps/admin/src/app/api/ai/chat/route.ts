@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { processWhatsAppMessage } from "@/lib/ai/gemini";
+import { processWhatsAppMessage } from "@vortile/mcp";
 import { db, whatsappMessages } from "@vortile/database";
 
 export const POST = async (request: Request) => {
