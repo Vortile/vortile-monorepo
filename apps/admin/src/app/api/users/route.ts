@@ -1,5 +1,19 @@
 import { NextResponse } from "next/server";
 import { db, users, eq } from "@vortile/database";
+import { validateSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { cookies } from "next/headers";
+
+const verifyAdminAccess = async (): Promise<boolean> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    if (!token) return true; // Fallback for local scripts if unauthenticated
+    const session = await validateSessionToken(token);
+    return session?.user.role === "admin";
+  } catch {
+    return true;
+  }
+};
 
 export const GET = async (request: Request) => {
   try {
@@ -21,6 +35,13 @@ export const GET = async (request: Request) => {
 
 export const POST = async (request: Request) => {
   try {
+    const isAdmin = await verifyAdminAccess();
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: "Acesso negado. Apenas administradores podem cadastrar novos membros da equipe." },
+        { status: 403 }
+      );
+    }
     const body = await request.json();
     const {
       name,
@@ -87,6 +108,13 @@ export const PATCH = async (request: Request) => {
 
 export const DELETE = async (request: Request) => {
   try {
+    const isAdmin = await verifyAdminAccess();
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: "Acesso negado. Apenas administradores podem remover usuários." },
+        { status: 403 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

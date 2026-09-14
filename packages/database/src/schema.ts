@@ -244,6 +244,19 @@ export const cashTransactions = sqliteTable("cash_transactions", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
+// 13. Sessions (Open Source Auth Session Storage)
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
 // Relations
 export const restaurantsRelations = relations(restaurants, ({ many }) => ({
   categories: many(categories),

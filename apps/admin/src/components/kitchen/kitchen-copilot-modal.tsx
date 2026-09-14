@@ -13,12 +13,14 @@ import { toast } from "sonner";
 
 interface KitchenCopilotModalProps {
   isOpen: boolean;
+  autoStartListening?: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 export const KitchenCopilotModal = ({
   isOpen,
+  autoStartListening = false,
   onClose,
   onSuccess,
 }: KitchenCopilotModalProps) => {
@@ -118,7 +120,7 @@ export const KitchenCopilotModal = ({
     }
   }, [handleSendCommand]);
 
-  const toggleListening = () => {
+  const toggleListening = useCallback(() => {
     if (!recognitionRef.current) {
       toast.info("Reconhecimento de voz não suportado neste navegador. Digite seu comando.");
       return;
@@ -133,7 +135,17 @@ export const KitchenCopilotModal = ({
         // ignore already started
       }
     }
-  };
+  }, [isListening]);
+
+  // Auto-start microphone listening when triggered via 2x Space
+  useEffect(() => {
+    if (isOpen && autoStartListening) {
+      const timer = setTimeout(() => {
+        toggleListening();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, autoStartListening, toggleListening]);
 
   const quickPrompts = [
     "Situação da cozinha agora",

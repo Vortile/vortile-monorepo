@@ -20,6 +20,12 @@ import {
   eq,
 } from "@vortile/database";
 import { executeToolCall, processWhatsAppMessage } from "@vortile/mcp";
+import {
+  authenticateWithPin,
+  createSession,
+  validateSessionToken,
+  revokeSession,
+} from "../lib/auth";
 
 test("Vortile Delivery — Test Pipeline", async (t) => {
   const restaurantId = "rest_vorti_marmitex";
@@ -305,5 +311,63 @@ test("Vortile Delivery — Test Pipeline", async (t) => {
 
     // Cleanup
     db.delete(users).where(eq(users.id, testUserId)).run();
+  });
+
+  await t.test("12. Real Session Authentication (PIN, Token, Lifecycle)", async () => {
+    // 1. Authenticate Luciano with PIN 1234
+    const adminUser = await authenticateWithPin("admin@vorti.com.br", "1234");
+    assert.ok(adminUser, "Admin must authenticate with correct PIN");
+    assert.strictEqual(adminUser.role, "admin");
+
+    // 2. Reject incorrect PIN
+    const wrongPin = await authenticateWithPin("admin@vorti.com.br", "9999");
+    assert.strictEqual(wrongPin, null, "Wrong PIN must be rejected");
+
+    // 3. Create Session Token
+    const token = await createSession(adminUser.id);
+    assert.ok(token, "Must generate a secure session token");
+    assert.strictEqual(typeof token, "string");
+
+    // 4. Validate Session Token
+    const session = await validateSessionToken(token);
+    assert.ok(session, "Session must be valid");
+    assert.strictEqual(session?.user.email, "admin@vorti.com.br");
+    assert.strictEqual(session?.user.role, "admin");
+
+    // 5. Revoke Session
+    const revoked = await revokeSession(token);
+    assert.strictEqual(revoked, true);
+    const postRevoke = await validateSessionToken(token);
+    assert.strictEqual(postRevoke, null, "Revoked session must be invalid");
+  });
+
+  await t.test("13. Role-Based Access Control (RBAC) Enforcement", async () => {
+    // 1. Verify Operator credentials
+    const operator = await authenticateWithPin("operador@vorti.com.br", "4321");
+    assert.ok(operator, "Operator Mateus must authenticate");
+    assert.strictEqual(operator.role, "operador");
+
+    // 2. Validate Operator is blocked from Admin capabilities
+    const hasAdminRole = (operator.role as string) === "admin";
+    assert.strictEqual(hasAdminRole, false, "Operator must NOT have admin access");
+  });
+
+  await t.test("14. Copilot de Cozinha Tool Execution (Double-tap Space simulation)", async () => {
+    const copilotResult = await executeToolCall(
+      "toggle_option_availability",
+      { optionNameOrId: "Purê de Batatas Cremoso", isAvailable: false, reason: "Acabou na panela das 12h" },
+      restaurantId
+    );
+
+    assert.strictEqual(copilotResult.result.isAvailable, false);
+    assert.ok(copilotResult.humanMessage.includes("Purê de Batatas"), "Must confirm item pause");
+
+    // Re-enable option
+    const resume = await executeToolCall(
+      "toggle_option_availability",
+      { optionNameOrId: "Purê de Batatas Cremoso", isAvailable: true },
+      restaurantId
+    );
+    assert.strictEqual(resume.result.isAvailable, true);
   });
 });

@@ -63,10 +63,12 @@ const LiveOrdersDashboard = () => {
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
   const [mobileColumn, setMobileColumn] = useState<"pending" | "preparing" | "ready">("pending");
+  const [autoStartAudio, setAutoStartAudio] = useState(false);
+  const lastSpacePressRef = useRef<number>(0);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
 
-  // Global hotkey: Space or Cmd/Ctrl+K opens Copilot
+  // Global hotkey: 2 quick Space presses triggers Copilot & starts microphone audio
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -74,8 +76,21 @@ const LiveOrdersDashboard = () => {
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable;
-      if (!isInput && (e.code === "Space" || (e.key === "k" && (e.metaKey || e.ctrlKey)))) {
+      if (isInput) return;
+
+      if (e.code === "Space") {
+        const now = Date.now();
+        if (now - lastSpacePressRef.current <= 350) {
+          e.preventDefault();
+          setAutoStartAudio(true);
+          setCopilotOpen(true);
+          lastSpacePressRef.current = 0;
+        } else {
+          lastSpacePressRef.current = now;
+        }
+      } else if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
+        setAutoStartAudio(false);
         setCopilotOpen((prev) => !prev);
       }
     };
@@ -218,7 +233,7 @@ const LiveOrdersDashboard = () => {
             <IconSparkles className="size-3.5 text-orange-400" />
             <span>Copilot de Cozinha</span>
             <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.5 rounded font-mono border border-stone-700 hidden sm:inline">
-              Espaço
+              2x Espaço
             </span>
           </button>
 
@@ -448,7 +463,10 @@ const LiveOrdersDashboard = () => {
       {/* Floating Push-to-Talk Copilot Pill */}
       <button
         type="button"
-        onClick={() => setCopilotOpen(true)}
+        onClick={() => {
+          setAutoStartAudio(true);
+          setCopilotOpen(true);
+        }}
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 hover:bg-stone-900 text-white shadow-2xl shadow-black/40 px-5 py-3 rounded-full flex items-center gap-3 border border-stone-700/60 backdrop-blur-md transition-all hover:scale-105 active:scale-95 group"
       >
         <div className="size-7 rounded-full bg-orange-600 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
@@ -458,17 +476,21 @@ const LiveOrdersDashboard = () => {
           <div className="text-xs font-bold flex items-center gap-1.5">
             <span>Copilot da Cozinha</span>
             <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.2 rounded font-mono border border-stone-700 hidden sm:inline">
-              Espaço
+              2x Espaço
             </span>
           </div>
-          <div className="text-[10px] text-stone-400">Pressione Espaço ou clique para falar</div>
+          <div className="text-[10px] text-stone-400">Toque 2x no Espaço ou clique para falar</div>
         </div>
       </button>
 
       {/* Copilot Modal */}
       <KitchenCopilotModal
         isOpen={copilotOpen}
-        onClose={() => setCopilotOpen(false)}
+        autoStartListening={autoStartAudio}
+        onClose={() => {
+          setAutoStartAudio(false);
+          setCopilotOpen(false);
+        }}
         onSuccess={fetchOrders}
       />
     </div>
