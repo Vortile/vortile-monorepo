@@ -5,19 +5,21 @@ import path from "path";
 import fs from "fs";
 
 const getDatabasePath = (): string => {
-  if (process.env.DATABASE_PATH) return process.env.DATABASE_PATH;
+  if (process.env.DATABASE_PATH) {
+    return path.resolve(process.cwd(), process.env.DATABASE_PATH);
+  }
   const candidates = [
+    path.resolve(__dirname, "../vortile-delivery.db"),
     path.resolve(process.cwd(), "packages/database/vortile-delivery.db"),
     path.resolve(process.cwd(), "../packages/database/vortile-delivery.db"),
     path.resolve(process.cwd(), "../../packages/database/vortile-delivery.db"),
-    path.resolve(__dirname, "../vortile-delivery.db"),
     path.resolve(process.cwd(), "vortile-delivery.db"),
   ];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
   }
   return candidates[0];
-}
+};
 
 const dbPath = getDatabasePath();
 

@@ -1,5 +1,11 @@
 import test from "node:test";
 import assert from "node:assert";
+
+try {
+  process.loadEnvFile(".env.local");
+} catch {
+  // ignore if file doesn't exist
+}
 import {
   db,
   restaurants,
@@ -280,7 +286,7 @@ test("Vortile Delivery — Test Pipeline", async (t) => {
         id: testUserId,
         restaurantId,
         name: "Juliana Santos (Operadora)",
-        email: "juliana@vorti.com.br",
+        email: `test_operador_${Date.now()}@vorti.com.br`,
         phone: "(11) 98888-7777",
         role: "operador",
         pin: "5678",

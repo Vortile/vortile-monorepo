@@ -5,6 +5,7 @@ import {
   orderItems,
   restaurants,
   eq,
+  or,
   desc,
 } from "@vortile/database";
 
@@ -139,21 +140,40 @@ export const POST = async (request: Request) => {
 export const PATCH = async (request: Request) => {
   try {
     const body = await request.json();
-    const { orderId, status } = body;
+    const { orderId, status, driverName, driverPhone, estimatedMinutes } = body;
 
     if (!orderId || !status) {
       return NextResponse.json({ error: "orderId e status são obrigatórios" }, { status: 400 });
     }
 
+    const orderNum = Number(orderId);
+    const conditions = [eq(orders.id, orderId), eq(orders.id, `ORD-${orderId}`)];
+    if (!isNaN(orderNum)) {
+      conditions.push(eq(orders.orderNumber, orderNum));
+    }
+
+    const targetOrder = db
+      .select()
+      .from(orders)
+      .where(or(...conditions))
+      .get();
+
+    if (!targetOrder) {
+      return NextResponse.json({ error: "Pedido não encontrado" }, { status: 404 });
+    }
+
     db.update(orders)
       .set({
         status,
+        notes: driverName
+          ? [targetOrder.notes, `🛵 Motoboy: ${driverName} (${driverPhone || "sem tel"}) - Chegada em ~${estimatedMinutes || 20} min`].filter(Boolean).join(" • ")
+          : targetOrder.notes,
         updatedAt: new Date().toISOString(),
       })
-      .where(eq(orders.id, orderId))
+      .where(eq(orders.id, targetOrder.id))
       .run();
 
-    const updated = db.select().from(orders).where(eq(orders.id, orderId)).get();
+    const updated = db.select().from(orders).where(eq(orders.id, targetOrder.id)).get();
     return NextResponse.json({ success: true, order: updated });
   } catch (error: any) {
     console.error("[API Orders PATCH Error]:", error);

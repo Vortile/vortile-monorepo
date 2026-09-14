@@ -146,6 +146,8 @@ const normalizeText = (str: string): string => {
     .trim();
 };
 
+const STOP_WORDS = new Set(["ao", "de", "do", "da", "dos", "das", "com", "sem", "em", "para", "na", "no", "por"]);
+
 const findBestMatch = <T extends { id: string; name: string }>(items: T[], query: string): T | undefined => {
   const normQuery = normalizeText(query);
   const byId = items.find((i) => i.id.toLowerCase() === normQuery);
@@ -156,20 +158,25 @@ const findBestMatch = <T extends { id: string; name: string }>(items: T[], query
 
   const byIncludes = items.find((i) => {
     const normName = normalizeText(i.name);
-    return normName.includes(normQuery) || normQuery.includes(normName);
+    return normName.includes(normQuery) || (normQuery.length > 5 && normQuery.includes(normName));
   });
   if (byIncludes) return byIncludes;
 
-  const queryTokens = normQuery.split(/\s+/).filter((t) => t.length > 2);
+  const queryTokens = normQuery
+    .split(/\s+/)
+    .filter((t) => t.length > 2 && !STOP_WORDS.has(t));
   let bestItem: T | undefined = undefined;
   let bestScore = 0;
 
   for (const item of items) {
-    const itemTokens = normalizeText(item.name).split(/\s+/);
+    const itemTokens = normalizeText(item.name)
+      .split(/\s+/)
+      .filter((t) => t.length > 2 && !STOP_WORDS.has(t));
+
     let matchCount = 0;
     for (const qt of queryTokens) {
-      if (itemTokens.some((it) => it.includes(qt) || qt.includes(it))) {
-        matchCount++;
+      if (itemTokens.some((it) => it === qt || (it.length >= 4 && qt.length >= 4 && (it.startsWith(qt) || qt.startsWith(it))))) {
+        matchCount += 2;
       }
     }
     if (matchCount > bestScore) {
