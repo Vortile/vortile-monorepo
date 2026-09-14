@@ -669,8 +669,16 @@ const DispatchDriverModal = ({
   if (!isOpen || !order) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-stone-200 animate-in zoom-in-95 duration-150">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4 backdrop-blur-xs cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-stone-200 animate-in zoom-in-95 duration-150 cursor-default"
+      >
         <div className="p-5 border-b border-stone-100 flex items-center justify-between bg-stone-50">
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center">

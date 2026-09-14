@@ -458,8 +458,16 @@ const CaixaTurnoPage = () => {
 
       {/* Modal: Abertura de Caixa */}
       {showOpenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowOpenModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
                 <IconLockOpen className="size-5 text-emerald-600" />
@@ -528,8 +536,16 @@ const CaixaTurnoPage = () => {
 
       {/* Modal: Fechamento de Caixa */}
       {showCloseModal && register && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCloseModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
                 <IconLock className="size-5 text-rose-600" />
@@ -624,8 +640,16 @@ const CaixaTurnoPage = () => {
 
       {/* Modal: Sangria ou Suprimento */}
       {showTxModal && register && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowTxModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base">
                 {txType === "outflow" ? "Registrar Sangria (Retirada)" : "Registrar Suprimento (Entrada de Troco)"}

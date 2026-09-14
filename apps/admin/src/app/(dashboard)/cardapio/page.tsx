@@ -582,8 +582,16 @@ const MenuManagementPage = () => {
 
       {/* Modal / Drawer: Gerenciar Guarnições do Prato */}
       {managingOptionsProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-xl bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setManagingOptionsProduct(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 shrink-0">
               <div>
                 <h3 className="font-bold text-stone-900 text-base">
@@ -695,8 +703,16 @@ const MenuManagementPage = () => {
 
       {/* Modal: Add New Product */}
       {showAddProductModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAddProductModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base">Adicionar Novo Prato ao Cardápio</h3>
               <button
@@ -811,8 +827,16 @@ const MenuManagementPage = () => {
 
       {/* Modal: Edit Product */}
       {showEditProductModal && editingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowEditProductModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base">Editar Prato: {editingProduct.name}</h3>
               <button
@@ -904,8 +928,16 @@ const MenuManagementPage = () => {
 
       {/* Modal: Add Category */}
       {showAddCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAddCategoryModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base">Nova Categoria de Pratos</h3>
               <button
@@ -955,8 +987,16 @@ const MenuManagementPage = () => {
 
       {/* Modal: Add Option to Group */}
       {showAddOptionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAddOptionModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base">Adicionar Nova Guarnição / Opção</h3>
               <button

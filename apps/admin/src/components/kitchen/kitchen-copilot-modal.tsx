@@ -29,24 +29,71 @@ export const KitchenCopilotModal = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastReply, setLastReply] = useState<string | null>(null);
   const [lastTool, setLastTool] = useState<string | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   const recognitionRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playSpeech = useCallback((text: string) => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
+  const playSpeech = useCallback(async (text: string) => {
+    if (!text || typeof window === "undefined") return;
+
     try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "pt-BR";
-      utterance.rate = 1.05;
-      const voices = window.speechSynthesis.getVoices();
-      const ptVoice = voices.find(
-        (v) => v.lang.includes("pt-BR") || v.lang.includes("pt_BR") || v.lang.includes("pt")
-      );
-      if (ptVoice) utterance.voice = ptVoice;
-      window.speechSynthesis.speak(utterance);
+      // 1. Stop any ongoing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+
+      setIsPlayingAudio(true);
+
+      // 2. Fetch studio-quality neural audio from /api/ai/tts (ElevenLabs or Google Neural Stream)
+      const res = await fetch("/api/ai/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          speed: 1.15, // Fast operational cadence
+        }),
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audio.playbackRate = 1.15;
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          setIsPlayingAudio(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        audio.onerror = () => {
+          setIsPlayingAudio(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+
+        await audio.play();
+        return;
+      }
+    } catch (e: any) {
+      console.warn("[Studio TTS playback failed, falling back to browser]:", e?.message);
+    }
+
+    // 3. Fallback to browser SpeechSynthesis only if offline/network failed
+    try {
+      if (window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "pt-BR";
+        utterance.rate = 1.15;
+        utterance.onend = () => setIsPlayingAudio(false);
+        utterance.onerror = () => setIsPlayingAudio(false);
+        window.speechSynthesis.speak(utterance);
+      }
     } catch {
-      // ignore
+      setIsPlayingAudio(false);
     }
   }, []);
 
@@ -157,8 +204,18 @@ export const KitchenCopilotModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-stone-900 text-white w-full max-w-lg rounded-3xl shadow-2xl border border-stone-800 p-6 space-y-5 overflow-hidden relative">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-stone-900 text-white w-full max-w-lg rounded-3xl shadow-2xl border border-stone-800 p-6 space-y-5 overflow-hidden relative cursor-default"
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -223,10 +280,14 @@ export const KitchenCopilotModal = ({
               <button
                 type="button"
                 onClick={() => playSpeech(lastReply)}
-                className="flex items-center gap-1 text-stone-400 hover:text-white"
+                className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
+                  isPlayingAudio
+                    ? "bg-orange-600 text-white animate-pulse"
+                    : "text-stone-400 hover:text-white hover:bg-stone-700/60"
+                }`}
               >
                 <IconVolume className="size-3.5" />
-                <span>Ouvir</span>
+                <span>{isPlayingAudio ? "Falando..." : "Ouvir"}</span>
               </button>
             </div>
             <p className="text-xs text-stone-200 leading-relaxed">{lastReply}</p>

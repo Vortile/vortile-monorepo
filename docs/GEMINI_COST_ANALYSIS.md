@@ -109,13 +109,44 @@ Uma das dúvidas mais comuns é: **devemos transcrever o áudio primeiro com um 
 > **Conclusão:** O **Gemini 2.5 Flash Nativo Multimodal** é muito superior ao Gemini 3.5 Transcribe para a nossa aplicação. Ele elimina uma etapa de rede, reduz a latência para menos de 700ms e custa centésimos de centavo de real.
 
 ### C. A IA Fala de Volta com o Operador? ("Ele vai falar algo?")
-**SIM!** Toda resposta retornada pelo Copilot é processada com duas ações simultâneas:
+**SIM!** Toda resposta retornada pelo Copilot é falada de volta em áudio de alta fidelidade:
 1. **Confirmação Visual:** O balão da resposta aparece com a ação executada em tempo real (ex: *"Pausei Costelinha Suína no cardápio online agora mesmo"*).
-2. **Síntese de Voz Imediata (Text-to-Speech):** O navegador aciona automaticamente a `SpeechSynthesisUtterance` com voz em português brasileiro natural (`lang: pt-BR`). O operador ouve a confirmação sonora na bancada sem precisar desviar o olhar nem pegar no mouse.
+2. **Síntese de Voz de Alta Fidelidade (Text-to-Speech):** Chamada via endpoint `/api/ai/tts`, que reproduz áudio neural em português brasileiro (`audio/mpeg`) acelerado a 1.15x para a cozinha (suportando **ElevenLabs Turbo v2.5** e **Google Neural Audio Stream**), eliminando a voz robótica de acessibilidade do navegador.
 
 ---
 
-## 6. Comparativo com Alternativas de Mercado
+## 6. Estudo de Caso Real: Cliente com 20 Pedidos/Dia (~R$ 1.000/dia, 7 dias/semana)
+
+Para validar a sustentabilidade financeira em um caso concreto de cliente real:
+- **Faturamento Médio Diário:** ~R$ 1.000,00
+- **Faturamento Mensal (30 dias contínuos):** ~R$ 30.000,00
+- **Volume de Pedidos:** 20 pedidos/dia = 600 pedidos/mês.
+
+### A. Volume de Voz do Copilot de Cozinha
+- O montador de marmitas usa o Copilot de voz cerca de **15 a 25 vezes ao dia** (verificar pedidos pendentes, despachar com motoboy, pausar itens que acabaram na chapa).
+- Cada resposta sintetizada é concisa e direta, com média de **65 caracteres** (ex: *"Confirmado, pausei o feijão tropeiro no cardápio online."*).
+- **Consumo Diário:** $20 \text{ comandos} \times 65 \text{ chars} = \mathbf{1.300 \text{ caracteres / dia}}$.
+- **Consumo Mensal:** $1.300 \times 30 \text{ dias} = \mathbf{39.000 \text{ caracteres / mês}}$.
+
+### B. Comparativo de Custo dos Motores de Voz (TTS)
+
+| Motor de Voz | Modelo / Voz | Velocidade | Custo Mensal (39.000 caracteres) | Custo em Reais (BRL) | % da Receita do Cliente (R$ 30k) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **ElevenLabs Turbo v2.5** (Recomendado para estúdio) | `eleven_turbo_v2_5` (Voz Brasileira customizada) | 1.15x a 1.20x | **$1,95 USD / mês** ($0,05 / 1k chars) | **~R$ 10,92 / mês** | **0,036%** (Insignificante) |
+| **ElevenLabs Starter Plan** | Assinatura base (30k chars inclusos + excedente) | 1.15x | **$5,90 USD / mês** fixo | **~R$ 33,00 / mês** | **0,11%** |
+| **Google Neural Audio Stream** (Integrado padrão) | Neural Stream em pt-BR | 1.15x | **$0,00 (Gratuito)** | **R$ 0,00 / mês** | **0,000%** |
+| **Google Cloud Text-to-Speech** | `pt-BR-Neural2-A` | 1.15x | **$0,00** (Até 1M chars/mês é 100% gratuito no Free Tier) | **R$ 0,00 / mês** | **0,000%** |
+
+### C. Custo Total Integrado do Cliente (Gemini 2.5 Flash + WhatsApp + Áudio ElevenLabs)
+- **WhatsApp + Gemini 2.5 Flash (600 pedidos):** ~R$ 2,50 / mês
+- **Copilot de Cozinha (Gemini Áudio Multimodal):** ~R$ 0,08 / mês
+- **Voz de Retorno ElevenLabs Turbo v2.5:** ~R$ 10,92 / mês
+- **Custo TOTAL de IA por restaurante:** **~R$ 13,50 por mês!**
+- **Impacto Econômico:** Menos de 15 reais por mês para automatizar 100% dos pedidos de WhatsApp e dar um co-piloto de voz de estúdio para a cozinha do restaurante.
+
+---
+
+## 7. Comparativo com Alternativas de Mercado
 
 | Solução | Custo Mensal | Experiência do Cliente | Capacidade da Cozinha |
 | :--- | :--- | :--- | :--- |

@@ -370,4 +370,22 @@ test("Vortile Delivery — Test Pipeline", async (t) => {
     );
     assert.strictEqual(resume.result.isAvailable, true);
   });
+
+  await t.test("15. Studio Speech Synthesis (TTS Pipeline & Audio Buffer)", async () => {
+    const { POST: ttsRoute } = await import("../app/api/ai/tts/route");
+    const fakeRequest = new Request("http://localhost/api/ai/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: "Pausei o Purê de Batatas no cardápio online com sucesso.",
+        speed: 1.15,
+      }),
+    });
+
+    const response = await ttsRoute(fakeRequest);
+    assert.strictEqual(response.status, 200);
+    assert.strictEqual(response.headers.get("content-type"), "audio/mpeg");
+    const buffer = await response.arrayBuffer();
+    assert.ok(buffer.byteLength > 1000, "Audio response must contain binary audio frames");
+  });
 });

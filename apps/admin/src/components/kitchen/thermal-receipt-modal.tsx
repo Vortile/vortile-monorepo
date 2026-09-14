@@ -69,8 +69,18 @@ export const ThermalReceiptModal = ({ order, isOpen, onClose }: ThermalReceiptMo
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-stone-200 flex flex-col max-h-[92vh]">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 p-4 backdrop-blur-xs cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-stone-200 flex flex-col max-h-[92vh] cursor-default"
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50">
           <div className="flex items-center gap-2">

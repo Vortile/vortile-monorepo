@@ -282,8 +282,16 @@ const UsuariosPage = () => {
 
       {/* Modal: Add User */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAddModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 animate-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <h3 className="font-bold text-stone-900 text-base flex items-center gap-2">
                 <IconUserPlus className="size-5 text-orange-600" />

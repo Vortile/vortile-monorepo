@@ -695,8 +695,16 @@ const WhatsAppOfficialPage = () => {
 
       {/* QR Code Modal for Real WhatsApp Pairing */}
       {showQrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-stone-100 space-y-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowQrModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-stone-100 space-y-4 cursor-default"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2">
                 <div className="size-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center">
