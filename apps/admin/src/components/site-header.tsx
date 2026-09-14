@@ -32,12 +32,12 @@ export const SiteHeader = () => {
   const isHome = pathname === "/";
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-[#1F232B] bg-[#0C0D0E]/80 backdrop-blur-md px-4 transition-[width,height] ease-linear">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-trigger-border-subtle bg-trigger-canvas/80 backdrop-blur-md px-4 transition-[width,height] ease-linear">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1 text-stone-400 hover:text-white" />
         <Separator
           orientation="vertical"
-          className="mr-2 data-[orientation=vertical]:h-4 bg-[#1F232B]"
+          className="mr-2 data-[orientation=vertical]:h-4 bg-trigger-border-subtle"
         />
         <Breadcrumb>
           <BreadcrumbList>
@@ -62,10 +62,10 @@ export const SiteHeader = () => {
         <Link
           href="/delivery"
           target="_blank"
-          className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-300 hover:text-white bg-[#14161E] hover:bg-[#1A1D27] border border-[#232734] transition-all"
+          className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-300 hover:text-white bg-trigger-card hover:bg-trigger-float border border-trigger-border transition-all"
         >
           <span>Cardápio Web</span>
-          <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-black/40 border border-white/10 text-stone-400">
+          <span className="text-tiny font-mono px-1 py-0.5 rounded bg-black/40 border border-white/10 text-stone-400">
             ↗
           </span>
         </Link>

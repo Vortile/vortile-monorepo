@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 const RootLayout = async ({ children }: Readonly<{ children: ReactNode }>) => (
   <html lang="pt-BR" className={cn("font-sans dark", geist.variable)}>
-    <body className="bg-[#0B0C0E] text-[#EDEDED] antialiased selection:bg-[#0066FF] selection:text-white">
+    <body className="bg-trigger-canvas text-foreground antialiased selection:bg-vortile selection:text-white">
       <Providers>
         {children}
         <Toaster theme="dark" />

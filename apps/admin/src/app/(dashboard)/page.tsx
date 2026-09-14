@@ -236,7 +236,7 @@ const LiveOrdersDashboard = () => {
   return (
     <div className="flex-1 p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto w-full">
       {/* Top Header — Trigger.dev Dark Operational Aesthetic */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#1F232B]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-trigger-border-subtle">
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">
@@ -275,7 +275,7 @@ const LiveOrdersDashboard = () => {
               setAutoStartAudio(true);
               setCopilotOpen(true);
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052DD] text-white shadow-sm shadow-[#0066FF]/20 transition-all active:scale-95"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-vortile hover:bg-vortile-hover text-white shadow-sm shadow-vortile/20 transition-all active:scale-95"
           >
             <IconSparkles className="size-3.5 text-sky-200" />
             <span>Copilot de Cozinha</span>
@@ -285,7 +285,7 @@ const LiveOrdersDashboard = () => {
           <button
             type="button"
             onClick={fetchOrders}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-800 bg-[#12141A] hover:bg-stone-800 text-stone-300 hover:text-white transition-all text-xs font-semibold"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-800 bg-trigger-card hover:bg-stone-800 text-stone-300 hover:text-white transition-all text-xs font-semibold"
             title="Recarregar Pedidos (R)"
             aria-label="Atualizar lista de pedidos manualmente"
           >
@@ -308,7 +308,7 @@ const LiveOrdersDashboard = () => {
             }}
             className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border transition-all text-xs ${
               soundEnabled
-                ? "bg-[#12141A] text-stone-200 border-stone-800"
+                ? "bg-trigger-card text-stone-200 border-stone-800"
                 : "bg-black/40 text-stone-600 border-stone-900"
             }`}
             title={soundEnabled ? "Alerta Sonoro Ativo (S)" : "Som Desativado (S)"}
@@ -321,7 +321,7 @@ const LiveOrdersDashboard = () => {
       </div>
 
       {/* Mobile Column Tabs (With Trigger.dev Shortcut Numbers) */}
-      <div className="flex lg:hidden items-center gap-1.5 bg-[#12141A] p-1.5 rounded-2xl border border-stone-800 shadow-xs">
+      <div className="flex lg:hidden items-center gap-1.5 bg-trigger-card p-1.5 rounded-2xl border border-stone-800 shadow-xs">
         <button
           type="button"
           onClick={() => setMobileColumn("pending")}
@@ -333,7 +333,7 @@ const LiveOrdersDashboard = () => {
         >
           <span>Novos</span>
           <Kbd variant="subtle">1</Kbd>
-          <span className="text-[10px] font-mono font-bold ml-0.5">({pendingOrders.length})</span>
+          <span className="text-tiny font-mono font-bold ml-0.5">({pendingOrders.length})</span>
         </button>
 
         <button
@@ -347,7 +347,7 @@ const LiveOrdersDashboard = () => {
         >
           <span>Preparo</span>
           <Kbd variant="subtle">2</Kbd>
-          <span className="text-[10px] font-mono font-bold ml-0.5">({preparingOrders.length})</span>
+          <span className="text-tiny font-mono font-bold ml-0.5">({preparingOrders.length})</span>
         </button>
 
         <button
@@ -361,7 +361,7 @@ const LiveOrdersDashboard = () => {
         >
           <span>Pronto</span>
           <Kbd variant="subtle">3</Kbd>
-          <span className="text-[10px] font-mono font-bold ml-0.5">({readyOrders.length})</span>
+          <span className="text-tiny font-mono font-bold ml-0.5">({readyOrders.length})</span>
         </button>
       </div>
 
@@ -369,7 +369,7 @@ const LiveOrdersDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Column 1: Novos Pedidos */}
         <div
-          className={`flex-col rounded-2xl bg-[#0F1116] border border-amber-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
+          className={`flex-col rounded-2xl bg-trigger-subtle border border-amber-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "pending" ? "flex" : "hidden lg:flex"
           }`}
         >
@@ -406,7 +406,7 @@ const LiveOrdersDashboard = () => {
 
         {/* Column 2: Em Preparo */}
         <div
-          className={`flex-col rounded-2xl bg-[#0F1116] border border-sky-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
+          className={`flex-col rounded-2xl bg-trigger-subtle border border-sky-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "preparing" ? "flex" : "hidden lg:flex"
           }`}
         >
@@ -443,7 +443,7 @@ const LiveOrdersDashboard = () => {
 
         {/* Column 3: Prontos & Em Rota */}
         <div
-          className={`flex-col rounded-2xl bg-[#0F1116] border border-emerald-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
+          className={`flex-col rounded-2xl bg-trigger-subtle border border-emerald-500/20 p-4 space-y-3 min-h-[450px] shadow-sm ${
             mobileColumn === "ready" ? "flex" : "hidden lg:flex"
           }`}
         >
@@ -515,17 +515,15 @@ const LiveOrdersDashboard = () => {
         }}
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 hover:bg-stone-900 text-white shadow-2xl shadow-black/40 px-5 py-3 rounded-full flex items-center gap-3 border border-stone-700/60 backdrop-blur-md transition-all hover:scale-105 active:scale-95 group"
       >
-        <div className="size-7 rounded-full bg-orange-600 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+        <div className="size-7 rounded-full bg-vortile flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
           <IconMicrophone className="size-4" />
         </div>
         <div className="text-left pr-1">
           <div className="text-xs font-bold flex items-center gap-1.5">
             <span>Copilot da Cozinha</span>
-            <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.2 rounded font-mono border border-stone-700 hidden sm:inline">
-              2x Espaço
-            </span>
+            <Kbd shortcut="space" variant="secondary" />
           </div>
-          <div className="text-[10px] text-stone-400">Toque 2x no Espaço ou clique para falar</div>
+          <div className="text-tiny text-stone-400">Toque 2x no Espaço ou clique para falar</div>
         </div>
       </button>
 
@@ -562,7 +560,7 @@ const OrderCard = ({
   const driverInfo = driverMatch ? driverMatch[1] : null;
 
   return (
-    <div className="bg-[#14161F] rounded-2xl p-4 border border-[#222736] hover:border-[#383F55] shadow-sm hover:shadow-md transition-all space-y-3">
+    <div className="bg-trigger-card rounded-2xl p-4 border border-trigger-border hover:border-trigger-highlight shadow-sm hover:shadow-md transition-all space-y-3">
       {/* Order Header */}
       <div className="flex items-start justify-between gap-3 border-b border-stone-800/80 pb-2.5">
         <div className="min-w-0 flex-1">
@@ -571,18 +569,18 @@ const OrderCard = ({
               #{order.orderNumber}
             </span>
             {isWhatsapp ? (
-              <span className="text-[10px] font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 font-mono">
+              <span className="text-tiny font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 font-mono">
                 <span className="size-1 rounded-full bg-emerald-400 animate-pulse" />
                 WhatsApp IA
               </span>
             ) : (
-              <span className="text-[10px] font-bold bg-stone-800 text-stone-300 border border-stone-700/60 px-1.5 py-0.5 rounded shrink-0 font-mono">
+              <span className="text-tiny font-bold bg-stone-800 text-stone-300 border border-stone-700/60 px-1.5 py-0.5 rounded shrink-0 font-mono">
                 Cardápio Web
               </span>
             )}
           </div>
           <div className="text-xs font-bold text-stone-200 mt-1 truncate">{order.customerName}</div>
-          <div className="text-[11px] text-stone-400 font-mono">{order.customerPhone}</div>
+          <div className="text-2xs text-stone-400 font-mono">{order.customerPhone}</div>
         </div>
 
         <div className="text-right shrink-0 flex flex-col items-end">
@@ -590,7 +588,7 @@ const OrderCard = ({
             {formatBRL(order.total)}
           </div>
           <div className="flex items-center gap-1 mt-1">
-            <span className="inline-block text-[10px] font-mono font-semibold text-stone-300 uppercase bg-stone-850 border border-stone-800 px-1.5 py-0.5 rounded">
+            <span className="inline-block text-tiny font-mono font-semibold text-stone-300 uppercase bg-stone-850 border border-stone-800 px-1.5 py-0.5 rounded">
               {order.paymentMethod === "pix" ? "⚡ PIX" : order.paymentMethod === "cash" ? "💵 Dinheiro" : "💳 Cartão"}
             </span>
             <button
@@ -608,7 +606,7 @@ const OrderCard = ({
 
       {/* Driver Assignment Badge */}
       {order.status === "out_for_delivery" && (
-        <div className="flex items-center gap-1.5 bg-blue-950/40 text-blue-300 text-[11px] font-bold px-2.5 py-1 rounded-xl border border-blue-500/30 font-mono">
+        <div className="flex items-center gap-1.5 bg-blue-950/40 text-blue-300 text-2xs font-bold px-2.5 py-1 rounded-xl border border-blue-500/30 font-mono">
           <IconMotorbike className="size-3.5 text-blue-400 shrink-0" />
           <span className="truncate">Em Trânsito: {driverInfo || "Motoboy a caminho"}</span>
         </div>
@@ -640,12 +638,12 @@ const OrderCard = ({
                   <span className="text-stone-500 font-normal font-mono tabular-nums">{formatBRL(item.totalPrice)}</span>
                 </div>
                 {customList.length > 0 && (
-                  <p className="text-[11px] text-stone-400 leading-snug">
+                  <p className="text-2xs text-stone-400 leading-snug">
                     {customList.join(" • ")}
                   </p>
                 )}
                 {item.notes && (
-                  <p className="text-[11px] text-amber-400/90 italic">
+                  <p className="text-2xs text-amber-400/90 italic">
                     Obs: {item.notes}
                   </p>
                 )}
@@ -667,7 +665,7 @@ const OrderCard = ({
         <button
           type="button"
           onClick={() => onPrintReceipt(order)}
-          className="p-2.5 rounded-xl border border-stone-800 bg-[#1A1D27] hover:bg-stone-800 text-stone-300 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0"
+          className="p-2.5 rounded-xl border border-stone-800 bg-trigger-float hover:bg-stone-800 text-stone-300 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0"
           title="Imprimir Cupom Térmico (P)"
           aria-label="Imprimir comanda térmica"
         >
@@ -680,7 +678,7 @@ const OrderCard = ({
           onClick={() => onStatusChange(order.id, nextStatus)}
           className={`flex-1 text-xs font-bold py-2.5 px-3.5 rounded-xl transition-all flex items-center justify-between shadow-xs ${
             order.status === "pending"
-              ? "bg-[#0066FF] hover:bg-[#0052DD] text-white shadow-[#0066FF]/25"
+              ? "bg-vortile hover:bg-vortile-hover text-white shadow-vortile/25"
               : order.status === "preparing"
               ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25"
               : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/25"

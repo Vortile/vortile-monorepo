@@ -149,6 +149,35 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Brand Tokens: Vortile */
+  --color-vortile: #0066FF;
+  --color-vortile-hover: #0052DD;
+  --color-vortile-subtle: #0066FF20;
+  --color-vortile-cyan: #1298D5;
+
+  /* Trigger.dev Workspace Palette */
+  --color-trigger-canvas: #0B0C0E;
+  --color-trigger-subtle: #0F1116;
+  --color-trigger-card: #14161F;
+  --color-trigger-card-hover: #181B26;
+  --color-trigger-float: #1A1D27;
+
+  --color-trigger-border: #222736;
+  --color-trigger-border-subtle: #1C1F2B;
+  --color-trigger-highlight: #383F55;
+
+  /* WhatsApp Official Brand */
+  --color-whatsapp: #25D366;
+  --color-whatsapp-hover: #1EBE5D;
+  --color-whatsapp-bubble: #D9FDD3;
+  --color-whatsapp-bg: #EFEAE2;
+
+  /* Clean Scaled Micro Typography (no arbitrary pixel sizes) */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 0.875rem;
+  --text-tiny: 0.625rem;
+  --text-tiny--line-height: 0.75rem;
 }
 
 @layer base {

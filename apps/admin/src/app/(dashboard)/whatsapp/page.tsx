@@ -331,7 +331,7 @@ const WhatsAppOfficialPage = () => {
       {/* Top Connection Bar */}
       <div className="bg-white border-b border-stone-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-sm">
+          <div className="size-9 rounded-xl bg-whatsapp text-white flex items-center justify-center shadow-sm">
             <IconBrandWhatsapp className="size-5" />
           </div>
           <div>
@@ -339,12 +339,12 @@ const WhatsAppOfficialPage = () => {
               <h1 className="text-sm font-bold text-stone-900">
                 WhatsApp da Loja (Operacional & Atendimento)
               </h1>
-              <span className="flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className="flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-tiny font-bold px-2 py-0.5 rounded-full border border-emerald-200">
                 <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" />
                 Conectado (+55 11 98765-4321)
               </span>
             </div>
-            <p className="text-[11px] text-stone-500">
+            <p className="text-2xs text-stone-500">
               Instância Vorti-Waba-01 • Mensagens processadas em tempo real com Google Gemini 2.5 Flash MCP
             </p>
           </div>
@@ -502,7 +502,7 @@ const WhatsAppOfficialPage = () => {
 
         {/* Center / Right: Active WhatsApp Chat Area */}
         <div
-          className={`flex-1 flex flex-col bg-[#EFEAE2] relative overflow-hidden ${
+          className={`flex-1 flex flex-col bg-whatsapp-bg relative overflow-hidden ${
             mobileActiveChat ? "flex" : "hidden md:flex"
           }`}
         >
@@ -599,8 +599,8 @@ const WhatsAppOfficialPage = () => {
                       isContact
                         ? "bg-white text-stone-900 rounded-tl-xs"
                         : isAi
-                        ? "bg-[#D9FDD3] text-stone-900 rounded-tr-xs border border-emerald-200/50"
-                        : "bg-[#D9FDD3] text-stone-900 rounded-tr-xs"
+                        ? "bg-whatsapp-bubble text-stone-900 rounded-tr-xs border border-emerald-200/50"
+                        : "bg-whatsapp-bubble text-stone-900 rounded-tr-xs"
                     }`}
                   >
                     {isAi && (
@@ -685,7 +685,7 @@ const WhatsAppOfficialPage = () => {
             <button
               type="submit"
               disabled={loading || !inputText.trim()}
-              className="size-10 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-xs shrink-0"
+              className="size-10 rounded-xl bg-whatsapp hover:bg-whatsapp-hover disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-xs shrink-0"
             >
               <IconSend className="size-4" />
             </button>
@@ -707,12 +707,12 @@ const WhatsAppOfficialPage = () => {
           >
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2">
-                <div className="size-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center">
+                <div className="size-8 rounded-lg bg-whatsapp text-white flex items-center justify-center">
                   <IconBrandWhatsapp className="size-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-stone-900 text-sm">Conectar WhatsApp do Restaurante</h3>
-                  <p className="text-[11px] text-stone-400">Instância oficial Baileys / WABA</p>
+                  <p className="text-2xs text-stone-400">Instância oficial Baileys / WABA</p>
                 </div>
               </div>
               <button
@@ -735,7 +735,7 @@ const WhatsAppOfficialPage = () => {
                 <div className="absolute inset-0 bg-emerald-600/90 rounded-2xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity p-3 text-center">
                   <IconChecks className="size-8 mb-1" />
                   <span className="text-xs font-bold">Instância Ativa</span>
-                  <span className="text-[10px] text-emerald-100">Pronta para escanear</span>
+                  <span className="text-tiny text-emerald-100">Pronta para escanear</span>
                 </div>
               </div>
 
@@ -743,7 +743,7 @@ const WhatsAppOfficialPage = () => {
                 <p className="text-xs font-bold text-stone-800">
                   Como conectar seu WhatsApp oficial:
                 </p>
-                <ol className="text-[11px] text-stone-500 text-left space-y-1 list-decimal pl-4">
+                <ol className="text-2xs text-stone-500 text-left space-y-1 list-decimal pl-4">
                   <li>Abra o WhatsApp no celular da marmitaria/restaurante.</li>
                   <li>Toque nos 3 pontinhos ou Configurações &gt; <strong>Aparelhos Conectados</strong>.</li>
                   <li>Aponte a câmera para este QR Code.</li>
@@ -751,7 +751,7 @@ const WhatsAppOfficialPage = () => {
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-2xs flex items-center gap-2">
               <IconCheck className="size-4 text-emerald-600 shrink-0" />
               <span>Número atual pareado: <strong>+55 (11) 98765-4321</strong></span>
             </div>
@@ -762,7 +762,7 @@ const WhatsAppOfficialPage = () => {
                 setShowQrModal(false);
                 toast.success("Sessão do WhatsApp verificada e sincronizada!");
               }}
-              className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-xs"
+              className="w-full bg-whatsapp hover:bg-whatsapp-hover text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-xs"
             >
               Fechar e Continuar Atendendo
             </button>

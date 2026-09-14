@@ -41,8 +41,8 @@ export const NavMain = ({ items }: { items: NavItem[] }) => {
                 target={isExternal && item.url === "/delivery" ? "_blank" : undefined}
                 className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                   isActive
-                    ? "bg-[#0066FF] text-white shadow-sm shadow-[#0066FF]/25 font-bold"
-                    : "text-stone-700 hover:bg-stone-100 hover:text-stone-900"
+                    ? "bg-vortile text-white shadow-sm shadow-vortile/25 font-bold"
+                    : "text-stone-400 hover:bg-stone-800/80 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">

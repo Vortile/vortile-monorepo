@@ -57,7 +57,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="size-12 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center font-bold shadow-lg shadow-[#0066FF]/25 mx-auto">
+          <div className="size-12 rounded-2xl bg-vortile text-white flex items-center justify-center font-bold shadow-lg shadow-vortile/25 mx-auto">
             <IconFlame className="size-6" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-stone-900">Vortile Delivery</h1>

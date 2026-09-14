@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-vortile: #0066FF;
+  --color-vortile-hover: #0052DD;
+  --color-vortile-cyan: #1298D5;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 0.875rem;
+  --text-tiny: 0.625rem;
+  --text-tiny--line-height: 0.75rem;
+}
+
 :root {
   color-scheme: light;
   --background: #fafaf9;
