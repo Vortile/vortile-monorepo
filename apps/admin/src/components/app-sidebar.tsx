@@ -34,21 +34,20 @@ export const AppSidebar = ({
 
   const navItems = [
     { title: "Esteira de Pedidos", url: "/", icon: IconChefHat },
-    { title: "WhatsApp da Loja", url: "/whatsapp", icon: IconBrandWhatsapp, badge: "IA Gemini" },
+    { title: "WhatsApp da Loja", url: "/whatsapp", icon: IconBrandWhatsapp },
     { title: "Gestão do Cardápio", url: "/cardapio", icon: IconToolsKitchen2 },
-    { title: "Caixa do Turno", url: "/caixa", icon: IconCash, badge: "Aberto" },
+    { title: "Caixa do Turno", url: "/caixa", icon: IconCash },
     ...(isAdmin
       ? [
-          { title: "Gestão de Usuários", url: "/usuarios", icon: IconUsers, badge: "Admin" },
-          { title: "Integração iFood", url: "/ifood", icon: IconTruck, badge: "Hub" },
+          { title: "Gestão de Usuários", url: "/usuarios", icon: IconUsers },
+          { title: "Integração iFood", url: "/ifood", icon: IconTruck },
           { title: "Configurações", url: "/configuracoes", icon: IconSettings },
         ]
       : []),
     {
-      title: "Cardápio Web (PWA)",
+      title: "Cardápio do Cliente",
       url: process.env.NEXT_PUBLIC_DELIVERY_URL || "/delivery",
       icon: IconDeviceMobile,
-      badge: "Abrir ↗",
     },
   ];
 

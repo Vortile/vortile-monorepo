@@ -6,16 +6,17 @@ import {
   IconVolume,
   IconVolumeOff,
   IconRefresh,
-  IconExternalLink,
   IconPrinter,
   IconBrandWhatsapp,
   IconX,
   IconMapPin,
+  IconSparkles,
+  IconMicrophone,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
-import Link from "next/link";
 import { playOrderChime } from "@/lib/audio";
 import { ThermalReceiptModal } from "@/components/kitchen/thermal-receipt-modal";
+import { KitchenCopilotModal } from "@/components/kitchen/kitchen-copilot-modal";
 
 const formatBRL = (val: number | undefined | null) => {
   if (val == null || isNaN(val)) return "R$ 0,00";
@@ -58,11 +59,29 @@ const LiveOrdersDashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [copilotOpen, setCopilotOpen] = useState(false);
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
   const [mobileColumn, setMobileColumn] = useState<"pending" | "preparing" | "ready">("pending");
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
+
+  // Global hotkey: Space or Cmd/Ctrl+K opens Copilot
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInput =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+      if (!isInput && (e.code === "Space" || (e.key === "k" && (e.metaKey || e.ctrlKey)))) {
+        e.preventDefault();
+        setCopilotOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -157,24 +176,52 @@ const LiveOrdersDashboard = () => {
 
   return (
     <div className="flex-1 p-4 md:p-6 space-y-6 max-w-[1600px] mx-auto w-full">
-      {/* Top Banner & Operational Status */}
-      <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
+      {/* Top Header — Minimalist & Focused */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
+        <div>
+          <div className="flex items-center gap-2.5">
             <h1 className="text-xl md:text-2xl font-black tracking-tight text-stone-900">
-              Esteira de Pedidos em Tempo Real
+              Esteira de Pedidos
             </h1>
-            <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
-              <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
-              Sincronizado via SQLite
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Ao vivo
             </span>
           </div>
-          <p className="text-xs text-stone-500 mt-1">
-            Painel de pedidos em tempo real com atualização contínua, som de chamada e integração WhatsApp Gemini MCP.
-          </p>
+
+          {/* Minimalist Summary Bar (Linear-style) */}
+          <div className="flex items-center gap-3 text-xs text-stone-500 mt-1.5 flex-wrap">
+            <span className="font-semibold text-stone-800">
+              <strong className="text-stone-900 font-bold">{orders.length}</strong> pedidos hoje
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="font-semibold text-stone-800">
+              <strong className="text-stone-900 font-bold">{formatBRL(totalRevenue)}</strong> faturados
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="text-amber-700 font-bold">
+              {pendingOrders.length} novos aguardando
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="text-emerald-700 font-bold">
+              {readyOrders.length} prontos
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setCopilotOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-stone-900 hover:bg-stone-800 text-white shadow-sm shadow-stone-900/20 transition-all active:scale-95"
+          >
+            <IconSparkles className="size-3.5 text-orange-400" />
+            <span>Copilot de Cozinha</span>
+            <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.5 rounded font-mono border border-stone-700 hidden sm:inline">
+              Espaço
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -182,71 +229,27 @@ const LiveOrdersDashboard = () => {
               setSoundEnabled(next);
               if (next) {
                 playOrderChime({ type: "ding_dong" });
-                toast.success("Alerta sonoro da cozinha ativado!");
+                toast.success("Alerta sonoro ativado");
               }
             }}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+            className={`p-2 rounded-xl border transition-all ${
               soundEnabled
-                ? "bg-stone-900 text-white border-stone-900 shadow-xs"
-                : "bg-white text-stone-600 border-stone-200 hover:bg-stone-50"
+                ? "bg-stone-100 text-stone-800 border-stone-300"
+                : "bg-white text-stone-400 border-stone-200 hover:bg-stone-50"
             }`}
+            title={soundEnabled ? "Alerta Sonoro Ativo" : "Som Desativado"}
           >
             {soundEnabled ? <IconVolume className="size-4" /> : <IconVolumeOff className="size-4" />}
-            <span>{soundEnabled ? "Alerta Sonoro Ativo" : "Som Desativado"}</span>
           </button>
 
           <button
             type="button"
             onClick={fetchOrders}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 transition-all shadow-xs"
+            className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 transition-all"
+            title="Atualizar Pedidos"
           >
             <IconRefresh className={`size-4 ${loading ? "animate-spin" : ""}`} />
-            <span>Atualizar</span>
           </button>
-
-          <Link
-            href={process.env.NEXT_PUBLIC_DELIVERY_URL || "/delivery"}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white transition-all shadow-xs shadow-orange-600/20"
-          >
-            <span>Ver Cardápio Web (Cliente)</span>
-            <IconExternalLink className="size-4" />
-          </Link>
-        </div>
-      </div>
-
-      {/* KPI Stats Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Pedidos</div>
-          <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1">{orders.length}</div>
-          <div className="text-[11px] text-emerald-600 font-bold mt-1">
-            {pendingOrders.length} novos aguardando
-          </div>
-        </div>
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Faturamento</div>
-          <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1 tabular-nums">
-            {formatBRL(totalRevenue)}
-          </div>
-          <div className="text-[11px] text-stone-400 mt-1 tabular-nums font-medium">
-            Média {formatBRL(totalRevenue / (orders.length || 1))}
-          </div>
-        </div>
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Em Preparo</div>
-          <div className="text-xl sm:text-2xl font-black text-orange-600 mt-1">
-            {preparingOrders.length}
-          </div>
-          <div className="text-[11px] text-stone-400 mt-1 font-medium">Tempo médio: 14 min</div>
-        </div>
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Prontos</div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-1">
-            {readyOrders.length}
-          </div>
-          <div className="text-[11px] text-stone-400 mt-1 font-medium">Motoboys em rota</div>
         </div>
       </div>
 
@@ -406,7 +409,6 @@ const LiveOrdersDashboard = () => {
                   order={order}
                   onStatusChange={updateOrderStatus}
                   onPrintReceipt={setReceiptOrder}
-                  onOpenDispatch={setDispatchOrder}
                   nextStatus="delivered"
                   nextActionLabel={
                     order.status === "out_for_delivery"
@@ -442,6 +444,33 @@ const LiveOrdersDashboard = () => {
         isOpen={!!receiptOrder}
         onClose={() => setReceiptOrder(null)}
       />
+
+      {/* Floating Push-to-Talk Copilot Pill */}
+      <button
+        type="button"
+        onClick={() => setCopilotOpen(true)}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 hover:bg-stone-900 text-white shadow-2xl shadow-black/40 px-5 py-3 rounded-full flex items-center gap-3 border border-stone-700/60 backdrop-blur-md transition-all hover:scale-105 active:scale-95 group"
+      >
+        <div className="size-7 rounded-full bg-orange-600 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+          <IconMicrophone className="size-4" />
+        </div>
+        <div className="text-left pr-1">
+          <div className="text-xs font-bold flex items-center gap-1.5">
+            <span>Copilot da Cozinha</span>
+            <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.2 rounded font-mono border border-stone-700 hidden sm:inline">
+              Espaço
+            </span>
+          </div>
+          <div className="text-[10px] text-stone-400">Pressione Espaço ou clique para falar</div>
+        </div>
+      </button>
+
+      {/* Copilot Modal */}
+      <KitchenCopilotModal
+        isOpen={copilotOpen}
+        onClose={() => setCopilotOpen(false)}
+        onSuccess={fetchOrders}
+      />
     </div>
   );
 };
@@ -451,14 +480,12 @@ const OrderCard = ({
   order,
   onStatusChange,
   onPrintReceipt,
-  onOpenDispatch,
   nextStatus,
   nextActionLabel,
 }: {
   order: Order;
   onStatusChange: (id: string, s: Order["status"]) => void;
   onPrintReceipt: (order: Order) => void;
-  onOpenDispatch?: (order: Order) => void;
   nextStatus: Order["status"];
   nextActionLabel: string;
 }) => {
@@ -512,19 +539,19 @@ const OrderCard = ({
 
       {/* Driver Assignment Badge */}
       {order.status === "out_for_delivery" && (
-        <div className="flex items-center gap-1.5 bg-blue-50 text-blue-900 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-blue-200">
+        <div className="flex items-center gap-1.5 bg-blue-50 text-blue-900 text-[11px] font-bold px-2.5 py-1 rounded-xl border border-blue-200/80">
           <IconMotorbike className="size-3.5 text-blue-600 shrink-0" />
           <span className="truncate">Em Trânsito: {driverInfo || "Motoboy a caminho"}</span>
         </div>
       )}
 
-      {/* Delivery Destination */}
-      <div className="text-xs text-stone-600 bg-stone-50 p-2 rounded-xl flex items-start gap-1.5">
-        <IconMotorbike className="size-4 shrink-0 text-orange-600 mt-0.5" />
-        <span className="line-clamp-2">{order.customerAddress || "Retirada no Balcão"}</span>
+      {/* Delivery Destination — Subtle Line */}
+      <div className="text-xs text-stone-500 flex items-center gap-1.5">
+        <IconMapPin className="size-3.5 shrink-0 text-stone-400" />
+        <span className="truncate">{order.customerAddress || "Retirada no Balcão"}</span>
       </div>
 
-      {/* Items List */}
+      {/* Items List — Scannable in 300ms */}
       {order.items && order.items.length > 0 && (
         <div className="border-t border-b border-stone-100 py-2 space-y-1.5 text-xs">
           {order.items.map((item) => {
@@ -538,20 +565,20 @@ const OrderCard = ({
             return (
               <div key={item.id} className="space-y-0.5">
                 <div className="font-bold text-stone-900 flex justify-between">
-                  <span>{item.quantity}x {item.productName}</span>
-                  <span className="text-stone-500 tabular-nums">{formatBRL(item.totalPrice)}</span>
+                  <span>
+                    {item.quantity}x {item.productName}
+                  </span>
+                  <span className="text-stone-400 font-normal tabular-nums">{formatBRL(item.totalPrice)}</span>
                 </div>
                 {customList.length > 0 && (
-                  <div className="text-[11px] text-stone-500 pl-2 border-l-2 border-orange-400 space-y-0.5">
-                    {customList.map((c, i) => (
-                      <div key={i}>{c}</div>
-                    ))}
-                  </div>
+                  <p className="text-[11px] text-stone-500 leading-snug">
+                    {customList.join(" • ")}
+                  </p>
                 )}
                 {item.notes && (
-                  <div className="text-[11px] text-amber-800 bg-amber-50 p-1 rounded font-medium">
+                  <p className="text-[11px] text-amber-800 italic">
                     Obs: {item.notes}
-                  </div>
+                  </p>
                 )}
               </div>
             );
@@ -559,60 +586,37 @@ const OrderCard = ({
         </div>
       )}
 
-      {/* General Order Notes */}
+      {/* General Order Notes — Minimalist Italic, No Box */}
       {order.notes && (
-        <div className="text-[11px] text-amber-800 bg-amber-50/80 p-2 rounded-xl border border-amber-200/50">
-          <span className="font-bold">Observação do Cliente:</span> {order.notes}
+        <div className="text-xs text-amber-900/90 italic pl-2.5 border-l-2 border-amber-400 py-0.5 leading-snug">
+          Obs: {order.notes}
         </div>
       )}
 
-      {/* WhatsApp Tracking Trigger */}
-      {(order.status === "ready" || order.status === "out_for_delivery") && (
-        <a
-          href={`https://wa.me/${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-            order.status === "out_for_delivery"
-              ? `🛵 Olá, ${order.customerName}! Seu pedido #${order.orderNumber} do Vorti Marmitex acabou de sair para entrega com nosso motoboy ${driverInfo ? `(${driverInfo})` : ""}! Endereço: ${order.customerAddress || "cadastrado"}. Previsão: 15-25 min. Bom apetite!`
-              : `🍲 Olá, ${order.customerName}! Seu pedido #${order.orderNumber} do Vorti Marmitex já está pronto e embalado aguardando sua retirada no balcão!`
-          )}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors"
-          title="Notificar cliente diretamente via WhatsApp"
+      {/* Action Buttons Row — 1 Primary Action + Print Icon */}
+      <div className="pt-1 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onPrintReceipt(order)}
+          className="p-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-500 hover:text-stone-800 transition-all flex items-center justify-center shrink-0"
+          title="Imprimir Cupom Térmico (80mm)"
         >
-          <IconBrandWhatsapp className="size-4 text-emerald-600" />
-          <span>{order.status === "out_for_delivery" ? "Avisar Saída no WhatsApp" : "Avisar Retirada no WhatsApp"}</span>
-        </a>
-      )}
+          <IconPrinter className="size-4" />
+        </button>
 
-      {/* Action Buttons Row */}
-      <div className="flex flex-col gap-2">
-        {order.status === "ready" && order.deliveryType === "delivery" && onOpenDispatch && (
-          <button
-            type="button"
-            onClick={() => onOpenDispatch(order)}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-orange-600/20"
-          >
-            <IconMotorbike className="size-4" />
-            <span>Despachar com Motoboy 🛵</span>
-          </button>
-        )}
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onPrintReceipt(order)}
-            className="p-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-600 transition-all flex items-center justify-center"
-            title="Imprimir Cupom 80mm"
-          >
-            <IconPrinter className="size-4" />
-          </button>
-          <button
-            onClick={() => onStatusChange(order.id, nextStatus)}
-            className="flex-1 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs"
-          >
-            <span>{nextActionLabel}</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onStatusChange(order.id, nextStatus)}
+          className={`flex-1 text-xs font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs ${
+            order.status === "pending"
+              ? "bg-stone-900 hover:bg-stone-800 text-white"
+              : order.status === "preparing"
+              ? "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20"
+              : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
+          }`}
+        >
+          <span>{nextActionLabel}</span>
+        </button>
       </div>
     </div>
   );

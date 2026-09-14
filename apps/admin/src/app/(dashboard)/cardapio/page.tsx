@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  IconSparkles,
   IconPlus,
   IconSearch,
   IconEdit,
   IconTrash,
   IconFolders,
   IconEye,
+  IconToolsKitchen2,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -71,6 +71,7 @@ const MenuManagementPage = () => {
   const [showEditProductModal, setShowEditProductModal] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showAddOptionModal, setShowAddOptionModal] = useState(false);
+  const [managingOptionsProduct, setManagingOptionsProduct] = useState<ProductItem | null>(null);
 
   // Selected item for edit or sub-add
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
@@ -359,19 +360,13 @@ const MenuManagementPage = () => {
   return (
     <div className="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
       {/* Top Header */}
-      <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl md:text-2xl font-black text-stone-900 tracking-tight">
-              Gestão do Cardápio & Estoque
-            </h1>
-            <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-              <IconSparkles className="size-3 text-emerald-600" />
-              Sincronizado via SQLite & WhatsApp
-            </span>
-          </div>
+          <h1 className="text-xl md:text-2xl font-black text-stone-900 tracking-tight">
+            Gestão do Cardápio
+          </h1>
           <p className="text-xs text-stone-500 mt-1">
-            Crie novos pratos, altere preços, gerencie fotos e pause guarnições instantaneamente com reflexo no Cardápio Web e na IA.
+            Controle pratos, categorias, preços e disponibilidades da sua cozinha.
           </p>
         </div>
 
@@ -534,97 +529,169 @@ const MenuManagementPage = () => {
                     </div>
                   </div>
 
-                  {/* Actions & Status */}
-                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                    <div>
+                  {/* Status & Focused Actions */}
+                  <div className="pt-2 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5">
                       <span
-                        className={`inline-flex items-center gap-1 font-bold ${
+                        className={`size-1.5 rounded-full ${
+                          product.isAvailable ? "bg-emerald-600" : "bg-rose-600"
+                        }`}
+                      />
+                      <span
+                        className={`font-bold ${
                           product.isAvailable ? "text-emerald-700" : "text-rose-700"
                         }`}
                       >
-                        <span
-                          className={`size-1.5 rounded-full ${
-                            product.isAvailable ? "bg-emerald-600" : "bg-rose-600"
-                          }`}
-                        />
-                        {product.isAvailable ? "Disponível no Cardápio" : "Pausado / Esgotado"}
+                        {product.isAvailable ? "Disponível" : "Pausado"}
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => toggleProduct(product)}
-                      className={`px-3 py-1 rounded-xl font-bold transition-all ${
-                        product.isAvailable
-                          ? "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200"
-                          : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                      }`}
-                    >
-                      {product.isAvailable ? "Pausar Item" : "Reativar Item"}
-                    </button>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setManagingOptionsProduct(product)}
+                        className="text-xs font-bold text-stone-700 hover:text-orange-600 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 transition-colors"
+                      >
+                        <IconToolsKitchen2 className="size-3.5 text-stone-500" />
+                        <span>
+                          {product.optionGroups && product.optionGroups.length > 0
+                            ? `Guarnições (${product.optionGroups.length})`
+                            : "+ Guarnições"}
+                        </span>
+                      </button>
 
-                  {/* Option Groups (Guarnições / Ingredientes) */}
-                  {product.optionGroups && product.optionGroups.length > 0 && (
-                    <div className="pt-3 border-t border-stone-100 space-y-2.5">
-                      <div className="text-[11px] font-bold text-stone-600 uppercase tracking-wider flex items-center justify-between">
-                        <span>Guarnições e Opções de Montagem:</span>
-                      </div>
-
-                      {product.optionGroups.map((group) => (
-                        <div key={group.id} className="space-y-1.5">
-                          <div className="flex items-center justify-between text-xs font-semibold text-stone-700">
-                            <span>{group.name}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedGroupId(group.id);
-                                setShowAddOptionModal(true);
-                              }}
-                              className="text-[11px] font-bold text-orange-600 hover:underline flex items-center gap-0.5"
-                            >
-                              <IconPlus className="size-3" />
-                              <span>Opção</span>
-                            </button>
-                          </div>
-
-                          <div className="flex flex-wrap gap-1.5">
-                            {group.options.map((opt) => (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => toggleOption(opt)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
-                                  opt.isAvailable
-                                    ? "bg-stone-50 border-stone-200 text-stone-800 hover:bg-stone-100"
-                                    : "bg-rose-50 border-rose-300 text-rose-700 line-through opacity-70"
-                                }`}
-                                title={opt.isAvailable ? "Clique para pausar" : "Clique para reativar"}
-                              >
-                                <span>{opt.name}</span>
-                                {opt.priceDelta > 0 && (
-                                  <span className="text-[10px] text-stone-400">
-                                    (+{formatBRL(opt.priceDelta)})
-                                  </span>
-                                )}
-                                {!opt.isAvailable && (
-                                  <span className="text-[9px] font-bold text-rose-600 no-underline">
-                                    (Esgotado)
-                                  </span>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                      <button
+                        type="button"
+                        onClick={() => toggleProduct(product)}
+                        className={`px-3 py-1.5 rounded-xl font-bold transition-all text-xs shrink-0 ${
+                          product.isAvailable
+                            ? "bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200"
+                            : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                        }`}
+                      >
+                        {product.isAvailable ? "Pausar" : "Reativar"}
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Modal / Drawer: Gerenciar Guarnições do Prato */}
+      {managingOptionsProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-xl bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-stone-100 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 shrink-0">
+              <div>
+                <h3 className="font-bold text-stone-900 text-base">
+                  Guarnições & Opções de {managingOptionsProduct.name}
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Clique nas opções para pausar ou liberar instantaneamente no cardápio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setManagingOptionsProduct(null)}
+                className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {managingOptionsProduct.optionGroups && managingOptionsProduct.optionGroups.length > 0 ? (
+                managingOptionsProduct.optionGroups.map((group) => (
+                  <div key={group.id} className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-xs text-stone-900">{group.name}</span>
+                        <span className="text-[10px] text-stone-500 ml-2">
+                          (Mín: {group.minSelected} · Máx: {group.maxSelected})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGroupId(group.id);
+                          setShowAddOptionModal(true);
+                        }}
+                        className="text-xs font-bold text-orange-600 hover:underline flex items-center gap-1"
+                      >
+                        <IconPlus className="size-3.5" />
+                        <span>Nova Opção</span>
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {group.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={async () => {
+                            await toggleOption(opt);
+                            setManagingOptionsProduct((prev) => {
+                              if (!prev) return null;
+                              return {
+                                ...prev,
+                                optionGroups: prev.optionGroups?.map((g) =>
+                                  g.id === group.id
+                                    ? {
+                                        ...g,
+                                        options: g.options.map((o) =>
+                                          o.id === opt.id ? { ...o, isAvailable: !o.isAvailable } : o
+                                        ),
+                                      }
+                                    : g
+                                ),
+                              };
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-1.5 transition-all ${
+                            opt.isAvailable
+                              ? "bg-white border-stone-200 text-stone-800 hover:border-orange-400 shadow-2xs"
+                              : "bg-rose-50 border-rose-300 text-rose-700 line-through opacity-70"
+                          }`}
+                          title={opt.isAvailable ? "Clique para pausar" : "Clique para reativar"}
+                        >
+                          <span>{opt.name}</span>
+                          {opt.priceDelta > 0 && (
+                            <span className="text-[10px] text-stone-400 font-mono">
+                              (+{formatBRL(opt.priceDelta)})
+                            </span>
+                          )}
+                          {!opt.isAvailable && (
+                            <span className="text-[9px] font-bold text-rose-600 no-underline">
+                              (Esgotado)
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center text-xs text-stone-500">
+                  Nenhum grupo de guarnições cadastrado para este prato.
+                </div>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-stone-100 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setManagingOptionsProduct(null)}
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-stone-900 text-white hover:bg-stone-800 transition-colors"
+              >
+                Concluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal: Add New Product */}
       {showAddProductModal && (
