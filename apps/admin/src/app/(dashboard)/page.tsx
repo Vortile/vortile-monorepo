@@ -253,6 +253,7 @@ const LiveOrdersDashboard = () => {
                 : "bg-white text-stone-400 border-stone-200 hover:bg-stone-50"
             }`}
             title={soundEnabled ? "Alerta Sonoro Ativo" : "Som Desativado"}
+            aria-label={soundEnabled ? "Desativar alerta sonoro de novos pedidos" : "Ativar alerta sonoro de novos pedidos"}
           >
             {soundEnabled ? <IconVolume className="size-4" /> : <IconVolumeOff className="size-4" />}
           </button>
@@ -262,6 +263,7 @@ const LiveOrdersDashboard = () => {
             onClick={fetchOrders}
             className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 transition-all"
             title="Atualizar Pedidos"
+            aria-label="Atualizar lista de pedidos manualmente"
           >
             <IconRefresh className={`size-4 ${loading ? "animate-spin" : ""}`} />
           </button>

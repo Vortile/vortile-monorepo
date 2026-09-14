@@ -23,6 +23,7 @@ export const runMigrations = () => {
       logo_url TEXT,
       pix_key TEXT NOT NULL DEFAULT 'financeiro@vorti.com.br',
       pix_key_type TEXT NOT NULL DEFAULT 'email',
+      primary_color TEXT NOT NULL DEFAULT '#0066FF',
       ai_enabled INTEGER NOT NULL DEFAULT 1,
       ai_system_prompt TEXT,
       created_at TEXT NOT NULL,
@@ -186,6 +187,12 @@ export const runMigrations = () => {
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
   `);
+
+  try {
+    sqlite.exec("ALTER TABLE restaurants ADD COLUMN primary_color TEXT NOT NULL DEFAULT '#0066FF';");
+  } catch {
+    // column already exists
+  }
 
   console.log("SQLite tables created successfully.");
 };

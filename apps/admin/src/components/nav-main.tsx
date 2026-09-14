@@ -41,7 +41,7 @@ export const NavMain = ({ items }: { items: NavItem[] }) => {
                 target={isExternal && item.url === "/delivery" ? "_blank" : undefined}
                 className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                   isActive
-                    ? "bg-orange-600 text-white shadow-sm shadow-orange-600/30"
+                    ? "bg-[#0066FF] text-white shadow-sm shadow-[#0066FF]/25 font-bold"
                     : "text-stone-700 hover:bg-stone-100 hover:text-stone-900"
                 }`}
               >

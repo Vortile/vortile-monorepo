@@ -231,6 +231,7 @@ export const KitchenCopilotModal = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Fechar Copilot de Cozinha"
             className="p-1.5 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
           >
             <IconX className="size-5" />
@@ -243,6 +244,7 @@ export const KitchenCopilotModal = ({
             <button
               type="button"
               onClick={toggleListening}
+              aria-label={isListening ? "Parar de ouvir comando de voz" : "Ativar microfone para falar com o Copilot"}
               className={`relative size-16 rounded-full flex items-center justify-center transition-all ${
                 isListening
                   ? "bg-rose-600 text-white ring-8 ring-rose-600/20 animate-pulse scale-110"

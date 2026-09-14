@@ -60,7 +60,7 @@ export const AppSidebar = ({
               href="/"
               className="flex items-center gap-3 p-2 rounded-xl hover:bg-stone-100 transition-all"
             >
-              <div className="flex size-9 items-center justify-center rounded-xl bg-orange-600 text-white font-bold shadow-md shadow-orange-600/20 shrink-0">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-[#0066FF] text-white font-bold shadow-md shadow-[#0066FF]/25 shrink-0">
                 <IconFlame className="size-5" />
               </div>
               <div className="flex flex-col text-left leading-tight min-w-0">

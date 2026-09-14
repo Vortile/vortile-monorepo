@@ -388,4 +388,25 @@ test("Vortile Delivery — Test Pipeline", async (t) => {
     const buffer = await response.arrayBuffer();
     assert.ok(buffer.byteLength > 1000, "Audio response must contain binary audio frames");
   });
+
+  await t.test("16. Restaurant Custom Brand Color & Settings Management", async () => {
+    const { PATCH: updateRestaurantRoute, GET: getRestaurantRoute } = await import("../app/api/restaurant/route");
+
+    // 1. Update brand color to custom Vortile Blue #0066FF
+    const patchReq = new Request("http://localhost/api/restaurant", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ primaryColor: "#0066FF" }),
+    });
+    const patchRes = await updateRestaurantRoute(patchReq);
+    assert.strictEqual(patchRes.status, 200);
+    const patchData = await patchRes.json();
+    assert.strictEqual(patchData.restaurant.primaryColor, "#0066FF");
+
+    // 2. Fetch and confirm persistence
+    const getRes = await getRestaurantRoute();
+    assert.strictEqual(getRes.status, 200);
+    const getData = await getRes.json();
+    assert.strictEqual(getData.restaurant.primaryColor, "#0066FF");
+  });
 });

@@ -4,9 +4,35 @@
   color-scheme: light;
   --background: #fafaf9;
   --foreground: #1c1917;
+  --brand-primary: #0066FF;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+/* Accessibility & Pointer Cursor Standards */
+button,
+[role="button"],
+a,
+select,
+summary,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+input:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-primary, #0066FF);
+  outline-offset: 2px;
 }

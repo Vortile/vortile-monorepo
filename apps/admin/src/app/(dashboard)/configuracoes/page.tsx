@@ -9,30 +9,78 @@ import {
   IconVolume,
   IconPrinter,
   IconBrandWhatsapp,
+  IconPalette,
+  IconCheck,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { playOrderChime, ChimeType } from "@/lib/audio";
 
 const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [restaurant, setRestaurant] = useState<any>(null);
+  const [primaryColor, setPrimaryColor] = useState<string>("#0066FF");
   const [selectedChime, setSelectedChime] = useState<ChimeType>("ding_dong");
   const [chimeVolume, setChimeVolume] = useState<number>(0.6);
   const [printerPaperWidth, setPrinterPaperWidth] = useState<"80mm" | "58mm">("80mm");
   const [autoPrintNewOrders, setAutoPrintNewOrders] = useState(false);
 
   useEffect(() => {
-    fetch("/api/menu?slug=vorti-marmitex")
+    fetch("/api/restaurant")
       .then((r) => r.json())
       .then((data) => {
-        if (data.restaurant) setRestaurant(data.restaurant);
+        if (data.restaurant) {
+          setRestaurant(data.restaurant);
+          if (data.restaurant.primaryColor) {
+            setPrimaryColor(data.restaurant.primaryColor);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback to menu query
+        fetch("/api/menu?slug=vorti-marmitex")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.restaurant) {
+              setRestaurant(data.restaurant);
+              if (data.restaurant.primaryColor) {
+                setPrimaryColor(data.restaurant.primaryColor);
+              }
+            }
+          });
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Configurações salvas no banco de dados SQLite com sucesso! ✅");
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/restaurant", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: restaurant.name,
+          phone: restaurant.phone,
+          deliveryFee: restaurant.deliveryFee,
+          avgDeliveryTime: restaurant.avgDeliveryTime,
+          minOrderAmount: restaurant.minOrderAmount,
+          pixKey: restaurant.pixKey,
+          pixKeyType: restaurant.pixKeyType,
+          primaryColor,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Configurações e cor do cardápio salvas com sucesso! ✅");
+      } else {
+        toast.error("Erro ao salvar configurações.");
+      }
+    } catch {
+      toast.error("Erro na comunicação com o servidor.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTestChime = (type: ChimeType) => {
@@ -422,11 +470,104 @@ const SettingsPage = () => {
           </div>
         </div>
 
+        {/* Visual Identity & Menu Brand Color */}
+        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
+            <IconPalette className="size-5 text-blue-600" />
+            <div>
+              <h2 className="font-bold text-stone-900 text-sm">Personalização Visual do Cardápio Web (PWA)</h2>
+              <p className="text-[11px] text-stone-400">Escolha a cor principal que seus clientes verão nos botões, badges e checkout</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-xs font-semibold text-stone-700">
+              Paletas Recomendadas & Cores da Marca
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
+              {[
+                { name: "Azul Vortile", hex: "#0066FF" },
+                { name: "Cyan Elétrico", hex: "#1298D5" },
+                { name: "Laranja Chapa", hex: "#EA580C" },
+                { name: "Verde Fresco", hex: "#059669" },
+                { name: "Vermelho Brasa", hex: "#DC2626" },
+                { name: "Roxo Gourmet", hex: "#7C3AED" },
+                { name: "Preto Linear", hex: "#18181B" },
+              ].map((swatch) => (
+                <button
+                  key={swatch.hex}
+                  type="button"
+                  onClick={() => setPrimaryColor(swatch.hex)}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center justify-center gap-1.5 ${
+                    primaryColor.toLowerCase() === swatch.hex.toLowerCase()
+                      ? "border-stone-900 bg-stone-50 ring-2 ring-stone-900/10 shadow-xs"
+                      : "border-stone-200 hover:border-stone-400 bg-white"
+                  }`}
+                >
+                  <div
+                    className="size-6 rounded-full flex items-center justify-center text-white shadow-xs"
+                    style={{ backgroundColor: swatch.hex }}
+                  >
+                    {primaryColor.toLowerCase() === swatch.hex.toLowerCase() && (
+                      <IconCheck className="size-3.5 stroke-[3]" />
+                    )}
+                  </div>
+                  <span className="text-[10px] font-bold text-stone-700 truncate w-full text-center">
+                    {swatch.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <label className="text-xs font-semibold text-stone-700">
+                Ou selecione uma cor personalizada (HEX):
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="size-8 rounded-lg cursor-pointer border border-stone-300 p-0.5"
+                  aria-label="Escolher cor personalizada"
+                />
+                <input
+                  type="text"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-24 text-xs font-mono p-1.5 rounded-lg border border-stone-200 uppercase"
+                  maxLength={7}
+                />
+              </div>
+            </div>
+
+            {/* Live Preview Card */}
+            <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-0.5">
+                  Prévia no Cardápio do Cliente
+                </span>
+                <span className="text-xs font-bold text-stone-800">
+                  Botão de Adicionar & Finalizar Pedido
+                </span>
+              </div>
+              <button
+                type="button"
+                style={{ backgroundColor: primaryColor }}
+                className="px-4 py-2 rounded-xl text-white text-xs font-bold shadow-xs transition-transform active:scale-95"
+              >
+                + Adicionar ao Pedido (R$ 37,90)
+              </button>
+            </div>
+          </div>
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md shadow-orange-600/20 transition-all"
+          disabled={isSaving}
+          className="w-full bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-md shadow-stone-900/20 transition-all"
         >
-          Salvar Todas as Configurações
+          {isSaving ? "Salvando Configurações..." : "Salvar Todas as Configurações"}
         </button>
       </form>
     </div>

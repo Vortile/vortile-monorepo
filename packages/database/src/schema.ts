@@ -23,6 +23,7 @@ export const restaurants = sqliteTable("restaurants", {
   logoUrl: text("logo_url"),
   pixKey: text("pix_key").notNull().default("financeiro@vorti.com.br"),
   pixKeyType: text("pix_key_type").notNull().default("email"), // email, cnpj, cpf, phone, random
+  primaryColor: text("primary_color").notNull().default("#0066FF"), // Vortile Signature Blue by default
   aiEnabled: integer("ai_enabled", { mode: "boolean" }).notNull().default(true),
   aiSystemPrompt: text("ai_system_prompt"),
   createdAt: text("created_at")

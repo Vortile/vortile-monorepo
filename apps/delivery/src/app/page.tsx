@@ -505,9 +505,14 @@ const DeliveryMenuPage = () => {
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             <button
               onClick={() => setActiveCategory("all")}
+              style={
+                activeCategory === "all"
+                  ? { backgroundColor: restaurant?.primaryColor || "#0066FF", color: "#fff" }
+                  : undefined
+              }
               className={`shrink-0 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
                 activeCategory === "all"
-                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/20"
+                  ? "shadow-md shadow-black/10"
                   : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
               }`}
             >
@@ -517,9 +522,14 @@ const DeliveryMenuPage = () => {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
+                style={
+                  activeCategory === cat.id
+                    ? { backgroundColor: restaurant?.primaryColor || "#0066FF", color: "#fff" }
+                    : undefined
+                }
                 className={`shrink-0 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
                   activeCategory === cat.id
-                    ? "bg-orange-600 text-white shadow-md shadow-orange-600/20"
+                    ? "shadow-md shadow-black/10"
                     : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
                 }`}
               >
@@ -634,22 +644,23 @@ const DeliveryMenuPage = () => {
         <div className="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-40">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-2xl shadow-xl shadow-orange-600/30 flex items-center justify-between transition-all transform hover:-translate-y-0.5 font-bold"
+            style={{ backgroundColor: restaurant?.primaryColor || "#0066FF" }}
+            className="w-full text-white p-4 rounded-2xl shadow-xl shadow-black/20 flex items-center justify-between transition-all transform hover:-translate-y-0.5 font-bold"
           >
             <div className="flex items-center gap-3">
-              <div className="size-8 rounded-xl bg-orange-700/60 flex items-center justify-center">
+              <div className="size-8 rounded-xl bg-black/20 flex items-center justify-center">
                 <IconShoppingBag className="size-5 text-white" />
               </div>
               <div className="text-left leading-tight">
                 <div className="text-sm font-extrabold">Ver Sacola</div>
-                <div className="text-xs text-orange-100 font-normal">
+                <div className="text-xs text-white/80 font-normal">
                   {cart.reduce((a, b) => a + b.quantity, 0)} item(s) selecionado(s)
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-base font-extrabold tabular-nums">{formatBRL(cartTotal)}</span>
-              <IconArrowRight className="size-4 text-orange-200" />
+              <IconArrowRight className="size-4 text-white/80" />
             </div>
           </button>
         </div>
@@ -657,8 +668,16 @@ const DeliveryMenuPage = () => {
 
       {/* Modal: Customizing Dish (Monte sua Marmita) */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-xs p-0 md:p-4">
-          <div className="w-full md:max-w-xl bg-white rounded-t-3xl md:rounded-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-200">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedProduct(null);
+          }}
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-xs p-0 md:p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full md:max-w-xl bg-white rounded-t-3xl md:rounded-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-200 cursor-default"
+          >
             {/* Modal Header with Product Image */}
             <div className="relative h-44 shrink-0 bg-stone-900">
               {selectedProduct.imageUrl && (
@@ -671,6 +690,7 @@ const DeliveryMenuPage = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <button
                 onClick={() => setSelectedProduct(null)}
+                aria-label="Fechar personalização de prato"
                 className="absolute top-3 right-3 size-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
               >
                 <IconX className="size-5" />
@@ -877,7 +897,8 @@ const DeliveryMenuPage = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-orange-600/20 text-xs md:text-sm flex items-center justify-between transition-all cursor-pointer"
+                style={{ backgroundColor: restaurant?.primaryColor || "#0066FF" }}
+                className="flex-1 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-black/20 text-xs md:text-sm flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>Adicionar à Sacola</span>
                 <span className="tabular-nums">{formatBRL(calculateModalPrice())}</span>
@@ -889,8 +910,16 @@ const DeliveryMenuPage = () => {
 
       {/* Cart & Checkout Drawer */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/60 backdrop-blur-xs">
-          <div className="w-full md:max-w-md h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsCartOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-end justify-end bg-black/60 backdrop-blur-xs cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full md:max-w-md h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-right duration-200 cursor-default"
+          >
             {/* Drawer Header */}
             <div className="p-4 border-b border-stone-200 flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-2">
@@ -899,6 +928,7 @@ const DeliveryMenuPage = () => {
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
+                aria-label="Fechar sacola de compras"
                 className="size-8 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center hover:bg-stone-300"
               >
                 <IconX className="size-4" />
@@ -1231,7 +1261,8 @@ const DeliveryMenuPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-orange-600/20 text-sm flex items-center justify-center gap-2 transition-all mt-4"
+                  style={{ backgroundColor: restaurant?.primaryColor || "#0066FF" }}
+                  className="w-full disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-black/20 text-sm flex items-center justify-center gap-2 transition-all mt-4"
                 >
                   {isSubmitting ? (
                     <span>Registrando Pedido...</span>
