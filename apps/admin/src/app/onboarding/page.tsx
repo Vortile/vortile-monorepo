@@ -143,11 +143,11 @@ const OnboardingPage = () => {
   const progressPercent = Math.round((currentStep / TOTAL_STEPS) * 100);
 
   return (
-    <div className="flex-1 flex flex-col justify-between max-w-2xl mx-auto w-full px-6 py-10">
+    <div className="flex-1 flex flex-col justify-between max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 box-border overflow-x-hidden">
       {/* Top Header & Progress */}
       <header className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="size-8 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold shadow-md shadow-orange-600/20">
               <IconFlame className="size-4" />
             </div>
@@ -155,7 +155,7 @@ const OnboardingPage = () => {
               Vortile Delivery
             </span>
           </div>
-          <span className="text-xs font-semibold text-stone-400">
+          <span className="text-xs font-semibold text-stone-400 shrink-0">
             Passo {currentStep} de {TOTAL_STEPS}
           </span>
         </div>
@@ -178,7 +178,7 @@ const OnboardingPage = () => {
               <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">
                 Passo 1 • Identificação
               </span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight break-words">
                 Qual é o nome do seu restaurante?
               </h1>
               <p className="text-xs md:text-sm text-stone-500 mt-1">
@@ -228,7 +228,7 @@ const OnboardingPage = () => {
               <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">
                 Passo 2 • Canal de Atendimento
               </span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight break-words">
                 Qual o WhatsApp oficial da sua loja?
               </h1>
               <p className="text-xs md:text-sm text-stone-500 mt-1">
@@ -264,7 +264,7 @@ const OnboardingPage = () => {
               <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">
                 Passo 3 • Entrega & Prazos
               </span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight break-words">
                 Como funcionam as entregas?
               </h1>
               <p className="text-xs md:text-sm text-stone-500 mt-1">
@@ -322,7 +322,7 @@ const OnboardingPage = () => {
               <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">
                 Passo 4 • Pagamentos Instantâneos
               </span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight break-words">
                 Recebimento via PIX
               </h1>
               <p className="text-xs md:text-sm text-stone-500 mt-1">
@@ -373,7 +373,7 @@ const OnboardingPage = () => {
                 <IconSparkles className="size-3.5 text-emerald-600" />
                 Passo 5 • Como o Copilot com IA Funciona
               </span>
-              <h1 className="text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-stone-900 mt-1 tracking-tight break-words">
                 Comandos por Voz & Ações Reais
               </h1>
               <p className="text-xs md:text-sm text-stone-500 mt-1">
