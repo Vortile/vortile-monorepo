@@ -433,8 +433,8 @@ const DeliveryMenuPage = () => {
 
           {/* Quick link to Dashboard / Staff */}
           <Link
-            href="/"
-            className="absolute top-4 right-4 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/80 transition-all border border-white/20"
+            href={process.env.NEXT_PUBLIC_ADMIN_URL || "/admin"}
+            className="hidden sm:flex absolute top-4 right-4 z-10 items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/80 transition-all border border-white/20"
           >
             <IconChefHat className="size-3.5 text-orange-400" />
             <span>Painel da Cozinha</span>
