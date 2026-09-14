@@ -298,54 +298,54 @@ const CaixaTurnoPage = () => {
       {register && (
         <div className="space-y-6">
           {/* Shift Details Banner */}
-          <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <IconClock className="size-4 text-stone-400" />
+          <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <IconClock className="size-4 text-stone-400 shrink-0" />
               <span>Aberto por <strong>{register.openedBy}</strong> às {new Date(register.openedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} de {new Date(register.openedAt).toLocaleDateString()}</span>
             </div>
-            <div className="text-stone-500 font-medium">
+            <div className="text-stone-500 font-medium shrink-0">
               Fundo de Troco Inicial: <strong className="text-stone-900">{formatBRL(register.initialAmount)}</strong>
             </div>
           </div>
 
           {/* KPI Cards: Sales by Payment Method */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
-              <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Vendas no Turno</div>
-              <div className="text-2xl font-black text-stone-900 mt-1 tabular-nums">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Vendas no Turno</div>
+              <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1 tabular-nums">
                 {formatBRL(register.totalSales)}
               </div>
               <div className="text-[11px] text-stone-400 mt-1 font-medium">{register.ordersCount || 0} pedidos faturados</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
-              <div className="flex items-center justify-between text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-[11px] font-bold text-stone-500 uppercase tracking-wider">
                 <span>Recebido em PIX</span>
                 <IconQrcode className="size-4 text-emerald-600" />
               </div>
-              <div className="text-2xl font-black text-emerald-700 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-1 tabular-nums">
                 {formatBRL(register.totalPix)}
               </div>
               <div className="text-[11px] text-stone-400 mt-1">Direto na conta da loja</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
-              <div className="flex items-center justify-between text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-[11px] font-bold text-stone-500 uppercase tracking-wider">
                 <span>Cartão Entrega</span>
                 <IconCreditCard className="size-4 text-orange-600" />
               </div>
-              <div className="text-2xl font-black text-orange-700 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-black text-orange-700 mt-1 tabular-nums">
                 {formatBRL(register.totalCard)}
               </div>
               <div className="text-[11px] text-stone-400 mt-1">Débito e crédito maquininha</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
-              <div className="flex items-center justify-between text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+              <div className="flex items-center justify-between text-[11px] font-bold text-stone-500 uppercase tracking-wider">
                 <span>Dinheiro em Caixa</span>
                 <IconCash className="size-4 text-blue-600" />
               </div>
-              <div className="text-2xl font-black text-blue-700 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-black text-blue-700 mt-1 tabular-nums">
                 {formatBRL(register.expectedCash)}
               </div>
               <div className="text-[11px] text-stone-400 mt-1 font-medium">Troco + Vendas em espécie</div>

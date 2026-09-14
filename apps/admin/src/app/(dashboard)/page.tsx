@@ -70,6 +70,7 @@ const LiveOrdersDashboard = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
+  const [mobileColumn, setMobileColumn] = useState<"pending" | "preparing" | "ready">("pending");
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
 
@@ -225,43 +226,101 @@ const LiveOrdersDashboard = () => {
       </div>
 
       {/* KPI Stats Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pedidos Hoje</div>
-          <div className="text-2xl font-black text-stone-900 mt-1">{orders.length}</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Pedidos</div>
+          <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1">{orders.length}</div>
           <div className="text-[11px] text-emerald-600 font-bold mt-1">
-            {pendingOrders.length} aguardando preparo
+            {pendingOrders.length} novos aguardando
           </div>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Faturamento Bruto</div>
-          <div className="text-2xl font-black text-stone-900 mt-1 tabular-nums">
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Faturamento</div>
+          <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1 tabular-nums">
             {formatBRL(totalRevenue)}
           </div>
           <div className="text-[11px] text-stone-400 mt-1 tabular-nums font-medium">
-            Média {formatBRL(totalRevenue / (orders.length || 1))} / pedido
+            Média {formatBRL(totalRevenue / (orders.length || 1))}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Em Preparo</div>
-          <div className="text-2xl font-black text-orange-600 mt-1">
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Em Preparo</div>
+          <div className="text-xl sm:text-2xl font-black text-orange-600 mt-1">
             {preparingOrders.length}
           </div>
           <div className="text-[11px] text-stone-400 mt-1 font-medium">Tempo médio: 14 min</div>
         </div>
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prontos p/ Entrega</div>
-          <div className="text-2xl font-black text-emerald-600 mt-1">
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Prontos</div>
+          <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-1">
             {readyOrders.length}
           </div>
           <div className="text-[11px] text-stone-400 mt-1 font-medium">Motoboys em rota</div>
         </div>
       </div>
 
+      {/* Mobile Column Tabs */}
+      <div className="flex lg:hidden items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-stone-200 shadow-xs">
+        <button
+          type="button"
+          onClick={() => setMobileColumn("pending")}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            mobileColumn === "pending"
+              ? "bg-amber-500 text-white shadow-xs"
+              : "text-stone-600 hover:bg-stone-100"
+          }`}
+        >
+          <span>Novos</span>
+          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+            mobileColumn === "pending" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
+          }`}>
+            {pendingOrders.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileColumn("preparing")}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            mobileColumn === "preparing"
+              ? "bg-orange-600 text-white shadow-xs"
+              : "text-stone-600 hover:bg-stone-100"
+          }`}
+        >
+          <span>Em Preparo</span>
+          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+            mobileColumn === "preparing" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
+          }`}>
+            {preparingOrders.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileColumn("ready")}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            mobileColumn === "ready"
+              ? "bg-emerald-600 text-white shadow-xs"
+              : "text-stone-600 hover:bg-stone-100"
+          }`}
+        >
+          <span>Prontos</span>
+          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+            mobileColumn === "ready" ? "bg-white/25 text-white" : "bg-stone-200 text-stone-700"
+          }`}>
+            {readyOrders.length}
+          </span>
+        </button>
+      </div>
+
       {/* Esteira de Pedidos Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Column 1: Novos Pedidos */}
-        <div className="flex flex-col rounded-2xl bg-amber-50/50 border border-amber-200/80 p-4 space-y-3 min-h-[500px]">
+        <div
+          className={`flex-col rounded-2xl bg-amber-50/50 border border-amber-200/80 p-4 space-y-3 min-h-[450px] ${
+            mobileColumn === "pending" ? "flex" : "hidden lg:flex"
+          }`}
+        >
           <div className="flex items-center justify-between pb-2 border-b border-amber-200/60">
             <div className="flex items-center gap-2">
               <span className="size-3 rounded-full bg-amber-500 animate-pulse" />
@@ -293,7 +352,11 @@ const LiveOrdersDashboard = () => {
         </div>
 
         {/* Column 2: Em Preparo */}
-        <div className="flex flex-col rounded-2xl bg-orange-50/40 border border-orange-200/80 p-4 space-y-3 min-h-[500px]">
+        <div
+          className={`flex-col rounded-2xl bg-orange-50/40 border border-orange-200/80 p-4 space-y-3 min-h-[450px] ${
+            mobileColumn === "preparing" ? "flex" : "hidden lg:flex"
+          }`}
+        >
           <div className="flex items-center justify-between pb-2 border-b border-orange-200/60">
             <div className="flex items-center gap-2">
               <span className="size-3 rounded-full bg-orange-500 animate-pulse" />
@@ -325,7 +388,11 @@ const LiveOrdersDashboard = () => {
         </div>
 
         {/* Column 3: Prontos & Em Rota */}
-        <div className="flex flex-col rounded-2xl bg-emerald-50/40 border border-emerald-200/80 p-4 space-y-3 min-h-[500px]">
+        <div
+          className={`flex-col rounded-2xl bg-emerald-50/40 border border-emerald-200/80 p-4 space-y-3 min-h-[450px] ${
+            mobileColumn === "ready" ? "flex" : "hidden lg:flex"
+          }`}
+        >
           <div className="flex items-center justify-between pb-2 border-b border-emerald-200/60">
             <div className="flex items-center gap-2">
               <span className="size-3 rounded-full bg-emerald-500" />

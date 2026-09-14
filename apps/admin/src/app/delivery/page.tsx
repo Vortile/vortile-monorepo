@@ -449,12 +449,12 @@ const DeliveryMenuPage = () => {
               alt="Logo"
               className="size-20 md:size-24 rounded-2xl object-cover border-4 border-white shadow-md -mt-10 md:mt-0"
             />
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-stone-900">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-stone-900 break-words leading-tight">
                   {restaurant?.name || "Vorti Marmitex & Grelhados"}
                 </h1>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 shrink-0">
                   <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" />
                   Aberto Agora
                 </span>
@@ -556,20 +556,20 @@ const DeliveryMenuPage = () => {
                   <div
                     key={prod.id}
                     onClick={() => openProductModal(prod)}
-                    className={`group relative bg-white rounded-2xl p-4 border transition-all cursor-pointer flex justify-between gap-3 ${
+                    className={`group relative bg-white rounded-2xl p-3.5 sm:p-4 border transition-all cursor-pointer flex justify-between gap-3 overflow-hidden ${
                       !prod.isAvailable
                         ? "opacity-60 bg-stone-50 border-stone-200"
                         : "border-stone-200/80 hover:border-orange-500/50 hover:shadow-lg hover:shadow-stone-200/50"
                     }`}
                   >
-                    <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
                         {prod.badge && (
                           <span className="inline-block rounded-md bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-800 uppercase tracking-wide mb-1.5">
                             {prod.badge}
                           </span>
                         )}
-                        <h3 className="font-bold text-stone-900 text-base group-hover:text-orange-600 transition-colors">
+                        <h3 className="font-bold text-stone-900 text-sm sm:text-base group-hover:text-orange-600 transition-colors truncate">
                           {prod.name}
                         </h3>
                         <p className="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
@@ -577,10 +577,10 @@ const DeliveryMenuPage = () => {
                         </p>
                       </div>
 
-                      <div className="mt-3 flex items-baseline gap-2">
+                      <div className="mt-3 flex items-baseline gap-2 flex-wrap">
                         {prod.promotionalPrice ? (
                           <>
-                            <span className="text-base font-extrabold text-orange-600 tabular-nums">
+                            <span className="text-sm sm:text-base font-extrabold text-orange-600 tabular-nums">
                               {formatBRL(prod.promotionalPrice)}
                             </span>
                             <span className="text-xs text-stone-400 line-through tabular-nums">
@@ -588,13 +588,13 @@ const DeliveryMenuPage = () => {
                             </span>
                           </>
                         ) : (
-                          <span className="text-base font-extrabold text-stone-900 tabular-nums">
+                          <span className="text-sm sm:text-base font-extrabold text-stone-900 tabular-nums">
                             {formatBRL(prod.price)}
                           </span>
                         )}
 
                         {!prod.isAvailable && (
-                          <span className="ml-auto text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                          <span className="ml-auto text-[10px] sm:text-[11px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200">
                             {prod.pauseReason || "Esgotado"}
                           </span>
                         )}
@@ -602,7 +602,7 @@ const DeliveryMenuPage = () => {
                     </div>
 
                     {/* Dish Image */}
-                    <div className="relative size-24 md:size-28 shrink-0 rounded-xl overflow-hidden bg-stone-100 border border-stone-100">
+                    <div className="relative size-20 sm:size-24 md:size-28 shrink-0 rounded-xl overflow-hidden bg-stone-100 border border-stone-100 self-center">
                       {prod.imageUrl ? (
                         <img
                           src={prod.imageUrl}

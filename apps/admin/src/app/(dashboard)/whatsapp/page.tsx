@@ -19,6 +19,7 @@ import {
   IconAlertCircle,
   IconInfoCircle,
   IconVolume,
+  IconArrowLeft,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 
@@ -179,6 +180,7 @@ const WhatsAppOfficialPage = () => {
   const [loading, setLoading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [aiEnabledForChat, setAiEnabledForChat] = useState(true);
+  const [mobileActiveChat, setMobileActiveChat] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -385,7 +387,11 @@ const WhatsAppOfficialPage = () => {
       {/* Main WhatsApp Window Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Column: Conversations List */}
-        <div className="w-80 md:w-96 bg-white border-r border-stone-200 flex flex-col shrink-0">
+        <div
+          className={`w-full md:w-80 lg:w-96 bg-white border-r border-stone-200 flex flex-col shrink-0 ${
+            mobileActiveChat ? "hidden md:flex" : "flex"
+          }`}
+        >
           {/* Search Box */}
           <div className="p-3 border-b border-stone-100 space-y-2">
             <div className="relative">
@@ -446,7 +452,10 @@ const WhatsAppOfficialPage = () => {
               return (
                 <div
                   key={contact.id}
-                  onClick={() => setSelectedContactId(contact.id)}
+                  onClick={() => {
+                    setSelectedContactId(contact.id);
+                    setMobileActiveChat(true);
+                  }}
                   className={`p-3 flex items-start gap-3 cursor-pointer transition-all ${
                     isSelected ? "bg-stone-100" : "hover:bg-stone-50"
                   }`}
@@ -496,12 +505,25 @@ const WhatsAppOfficialPage = () => {
         </div>
 
         {/* Center / Right: Active WhatsApp Chat Area */}
-        <div className="flex-1 flex flex-col bg-[#EFEAE2] relative overflow-hidden">
+        <div
+          className={`flex-1 flex flex-col bg-[#EFEAE2] relative overflow-hidden ${
+            mobileActiveChat ? "flex" : "hidden md:flex"
+          }`}
+        >
           {/* Chat Header */}
-          <div className="bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between shrink-0 shadow-2xs z-10">
-            <div className="flex items-center gap-3">
+          <div className="bg-white border-b border-stone-200 px-3 md:px-4 py-3 flex items-center justify-between shrink-0 shadow-2xs z-10">
+            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileActiveChat(false)}
+                className="md:hidden p-1.5 -ml-1 rounded-xl text-stone-600 hover:bg-stone-100 shrink-0"
+                title="Voltar para conversas"
+              >
+                <IconArrowLeft className="size-5" />
+              </button>
+
               <div
-                className={`size-10 rounded-full ${activeContact.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-xs`}
+                className={`size-10 rounded-full ${activeContact.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0`}
               >
                 {activeContact.role === "kitchen" ? (
                   <IconChefHat className="size-5" />
@@ -509,17 +531,19 @@ const WhatsAppOfficialPage = () => {
                   activeContact.name.charAt(0)
                 )}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-stone-900">{activeContact.name}</h2>
-                  <span className="text-xs text-stone-400 font-mono">{activeContact.phone}</span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 truncate">
+                  <h2 className="text-sm font-bold text-stone-900 truncate">{activeContact.name}</h2>
+                  <span className="text-[10px] text-stone-400 font-mono hidden sm:inline">
+                    {activeContact.phone}
+                  </span>
                 </div>
-                <div className="text-[11px] text-emerald-600 flex items-center gap-1 font-medium">
-                  <span className="size-1.5 rounded-full bg-emerald-500" />
-                  <span>
+                <div className="text-[11px] text-emerald-600 flex items-center gap-1 font-medium truncate">
+                  <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">
                     {activeContact.role === "kitchen"
-                      ? "Cozinha Autorizada • Executa MCP no SQLite"
-                      : "Cliente • Atendimento Inteligente"}
+                      ? "Cozinha • Comandos MCP no SQLite"
+                      : "Cliente • Atendimento IA"}
                   </span>
                 </div>
               </div>
